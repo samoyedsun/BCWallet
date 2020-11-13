@@ -29,7 +29,7 @@ linux macosx : init
 	cd skynet && $(MAKE) TLS_MODULE="$(TLS_MODULE)" TLS_LIB="$(TLS_LIB)" TLS_INC="$(TLS_INC)" PLAT="$(PLAT)" && cd .. && $(MAKE) all SHARED="$(SHARED)" PLAT="$(PLAT)"
 	
 CSERVICE = jmlogger
-LUA_CLIB = cjson lfs
+LUA_CLIB = cjson
 
 
 $(LUA_CLIB_PATH) :
@@ -45,9 +45,6 @@ all : \
 
 $(LUA_CLIB_PATH)/cjson.so : lualib-src/lua-cjson/lua_cjson.c lualib-src/lua-cjson/strbuf.c lualib-src/lua-cjson/strbuf.h | $(LUA_CLIB_PATH)
 	cd lualib-src/lua-cjson && $(MAKE) $(PLAT) && $(MAKE) install
-
-$(LUA_CLIB_PATH)/lfs.so : lualib-src/luafilesystem/src/lfs.c lualib-src/luafilesystem/src/lfs.h
-	cd lualib-src/luafilesystem/ && $(MAKE) $(PLAT) && $(MAKE) install
 
 $(CSERVICE_PATH)/jmlogger.so : service-src/service_logger.c | $(CSERVICE_PATH) 
 	$(CC) $(CFLAGS) $(SHARED) $< -o $@ -I$(SKYNET_INC)
