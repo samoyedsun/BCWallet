@@ -1,6 +1,5 @@
 local skynet = require "skynet"
 require "skynet.manager"
-local etcd = require "etcd"
 local hotfix = require "hotfix"
 local rpc_mysql = require "rpc_mysql"
 local rpc_redis = require "rpc_redis"
