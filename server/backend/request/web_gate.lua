@@ -5,13 +5,10 @@ local REQUEST = {}
 
 -- 查看是否登录
 function REQUEST:gate_logon(msg)
-    local ok = skynet.call(".logon", "lua", "is_logon", msg.uid)
-    return {flag = ok}
+    return {flag = false}
 end
 
 function REQUEST:gate_room(msg)
-    --local ok = skynet.call(".room", "lua", "room_is_exist", msg.rid)
-    --return {flag = ok}
     return {flag = false}
 end
 

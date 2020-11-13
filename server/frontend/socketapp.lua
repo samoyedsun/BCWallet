@@ -45,7 +45,6 @@ end)
 
 socketapp.use("^close$", function (self)
     local session = self.session
-    skynet.send(".logon", "lua", "logout", session.uid, session.fd)
     if session.handle then
         local ret = skynet.call(session.handle, "lua", "offline", session.uid)
         logger.debug("player close code:%d, err:%s", ret.code, ret.err)

@@ -7,7 +7,7 @@ local root = {
     frontend = {
         ip = "0.0.0.0",
         type = "http",
-        socket = 8303,
+        wsport = 9948,
         port = 8203,
     }
 }
