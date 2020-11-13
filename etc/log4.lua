@@ -1,7 +1,6 @@
 local skynet = require "skynet"
 
 local logpath = skynet.getenv("logpath")
-local logmode = skynet.getenv("logmode")
 
 local configure = {
     appenders = {

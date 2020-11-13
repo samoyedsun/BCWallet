@@ -25,12 +25,14 @@ lua_cpath = skynetroot .. "luaclib/?.so;" .. cloudroot .."luaclib/?.so"
 
 
 logpath = $LOG_PATH
-logmode = $DEBUG_MODE
-nodename = $NODENAME
-etcdhost = $ETCDHOST
 env = $ENV or "dev"
 
 if $DAEMON then
       daemon = "./run/skynet-test.pid"
       logger = logpath .. "skynet-error.log"
 end
+
+debug_mode = true
+backend_http_port = 8103
+frontend_http_port = 8203
+frontend_ws_port = 9948

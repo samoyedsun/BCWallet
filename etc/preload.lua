@@ -4,7 +4,6 @@ require "print_r"
 require "utils.utils"
 
 log4 = require "log4"
-log4.configure(require('etc.' .. skynet.getenv("env") .. ".log4"))
+log4.configure(require("etc.log4"))
 
-local logmode = skynet.getenv("logmode")
-IS_DEBUG = logmode == "DEBUG"
+IS_DEBUG = skynet.getenv("run_mode")

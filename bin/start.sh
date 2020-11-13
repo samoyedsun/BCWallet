@@ -3,12 +3,9 @@
 export ROOT=$(pwd)
 
 export DAEMON=false
-export NODENAME='"test"'
-export DEBUG_MODE='"DEBUG"'
 export LOG_PATH='"./run/"'
-export ETCDHOST='"127.0.0.1:8101"'
 export ENV='"dev"'
-while getopts "DKUn:d:l:e:v:" arg
+while getopts "DKU:l:v:" arg
 do
     case $arg in
         D)
@@ -18,17 +15,8 @@ do
             kill `cat $ROOT/run/skynet-test.pid`
             exit 0;
             ;;
-        n)  
-            export NODENAME='"'$OPTARG'"'
-            ;;
-        d)  
-            export DEBUG_MODE='"'$OPTARG'"'
-            ;;
         l) 
             export LOG_PATH='"'$OPTARG'"'
-            ;;
-        e) 
-            export ETCDHOST='"'$OPTARG'"'
             ;;
         v)  
             export ENV='"'$OPTARG'"'

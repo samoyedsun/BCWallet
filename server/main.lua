@@ -9,9 +9,8 @@ skynet.start(function ()
         local console = skynet.uniqueservice("console")
     end
 
-    local config = require('etc.' .. skynet.getenv("env") .. ".server")
-    hotfix.start_hotfix_service("skynet", "srv_web", config.backend.port, "server.backend.webapp", 65536)
-    hotfix.start_hotfix_service("skynet", "srv_web", config.frontend.port, "server.frontend.webapp", 65536 * 2)
-    hotfix.start_hotfix_service("skynet", "srv_websocket", config.frontend.wsport, "server.frontend.wsapp", "ws")
+    hotfix.start_hotfix_service("skynet", "srv_web", skynet.getenv("backend_http_port"), "server.backend.webapp", 65536)
+    hotfix.start_hotfix_service("skynet", "srv_web", skynet.getenv("frontend_http_port"), "server.frontend.webapp", 65536 * 2)
+    hotfix.start_hotfix_service("skynet", "srv_websocket", skynet.getenv("frontend_ws_port"), "server.frontend.wsapp", "ws")
     skynet.exit()
 end)
