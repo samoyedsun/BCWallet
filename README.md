@@ -1,2 +1,2 @@
 # VideoWebsite
-Video Website base skynet
+Skynet-based website
