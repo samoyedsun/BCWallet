@@ -48,6 +48,6 @@ webapp.after(".*", function(req, res)
     return true
 end)
 
-webapp.static("^/static/*", "./server/")
+webapp.static("^/*", "./server/frontend/views/")
 
 return webapp

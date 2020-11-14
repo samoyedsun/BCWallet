@@ -2,12 +2,10 @@ local skynet = require "skynet"
 local webapp = require "web.app"
 local jproto = require "jproto"
 local webproto = require "web.proto"
-local gate = require "server.backend.request.web_gate"
-local room = require "server.backend.request.web_room"
+local user = require "server.backend.request.web_user"
 local web_util = require "utils.web_util"
 local logger = log4.get_logger("server_backend_webapp")
 web_util.set_logger(logger)
-
 local webproto = webproto:new(jproto.host)
 
 webproto:use("error", function ( ... )
@@ -35,21 +33,20 @@ webapp.before(".*", function(req, res)
     return true
 end)
 
-webapp.use("^/room/:name$",function (req, res)
-    res:json(room.request(req))
+webapp.use("^/user/:name$", function (req, res)
+    res:json(user.request(req))
     return true
 end)
-webapp.use("^/gate/:name$", function (req, res)
-    res:json(gate.request(req))
-    return true
-end)
-webapp.post("^/jproto$", function ( ... ) 
-    webproto:process(...) 
+
+webapp.post("^/jproto$", function ( ... )
+    webproto:process(...)
 end)
 
 webapp.after(".*", function(req, res)
     logger.debug("after web req %s body %s res body %s", tostring(req.url), tostring(req.body), tostring(res.body))
     return true
 end)
+
+webapp.static("^/*", "./server/backend/views/")
 
 return webapp

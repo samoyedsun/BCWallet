@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+    	<!--网页编码，要使用的外部文件，自动适应屏幕-->
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link href="bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet" media="screen">
+			<meta name="viewport"
+				content="width=device-width,initial-scale=1.0,user-scalable=no">
+				<title>栅格系统</title>
+	</head>
+ 
+	<body>
+	<!--使用Bootstrap如果不使用面板的话，要把元素放进一个占满100%屏幕的容器里-->
+    <!--class="container"则自动居中-->
+		<div class="container-fluid">
+        	<!--定义一行-->
+			<div class="row">
+            <!--xs代表手机小屏幕，md代表平板中屏幕，lg代表PC大屏幕-->
+            <!--同一对的元素之和必须等于12，否则出现错误，如A的col-xs-2+B的col-xs-10是等于12的-->
+            <!--bg-warning是定义浅黄色的背景色-->
+				<div class="col-xs-2 col-md-8 col-lg-4 bg-warning">
+					A
+				</div>
+				<div class="col-xs-10 col-md-4 col-lg-8 bg-primary">
+					B
+				</div>
+			</div>
+ 
+			<div class="row">
+            <!--这里的道理与上面的一样，A的col-xs-1+B的col-xs-1+C的col-xs-10是等于12的-->
+				<div class="col-xs-1 col-md-10 col-lg-1 bg-warning">
+					A
+				</div>
+				<div class="col-xs-1 col-md-1 col-lg-10 bg-primary">
+					B
+				</div>
+				<div class="col-xs-10 col-md-1 col-lg-1 bg-success">
+					C
+				</div>
+			</div>
+		</div>
+ 
+	</body>
+</html>
