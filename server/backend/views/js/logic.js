@@ -14,7 +14,7 @@ function user_local_login(){
             }
         }
     }
-    xhr.open('POST', "http://" + document.domain + ":8203" + "/user/local_login", true );
+    xhr.open('POST', "http://" + document.domain + ":8103" + "/user/local_login", true );
     var data = JSON.stringify({
         uid : uid,
         token : token
@@ -24,7 +24,7 @@ function user_local_login(){
 
 function user_info(){
     var socket = new Socket();
-    socket.connect("ws://" + document.domain + ":9948" + "/ws");
+    socket.connect("ws://" + document.domain + ":9848" + "/ws");
     socket.on("onopen", function () {
         socket.request("user_auth", {
             uid : uid,
