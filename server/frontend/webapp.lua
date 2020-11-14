@@ -4,7 +4,6 @@ local webapp = require "web.app"
 local webproto = require "web.proto"
 local web_util = require "utils.web_util"
 local user = require "server.frontend.request.web_user"
-local common_conf = require "server.config.common_conf"
 local logger = log4.get_logger("server_frontend_webapp")
 web_util.set_logger(logger)
 
@@ -49,10 +48,6 @@ webapp.after(".*", function(req, res)
     return true
 end)
 
-if skynet.getenv("env") == common_conf.ENV_TYPE_PROD then
-    webapp.static("^/static/img/*", "./server/")
-else
-    webapp.static("^/static/*", "./server/")
-end
+webapp.static("^/static/*", "./server/")
 
 return webapp
