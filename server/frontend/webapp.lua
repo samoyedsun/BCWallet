@@ -44,7 +44,7 @@ webapp.post("^/jproto$", function ( ... )
 end)
 
 webapp.after(".*", function(req, res)
-    logger.debug("after web req %s body %s res body %s", tostring(req.url), tostring(req.body), tostring(res.body))
+    logger.debug("after web req %s body %s res body %s", tostring(req.url), tostring(req.body), string.len(res.body))
     return true
 end)
 

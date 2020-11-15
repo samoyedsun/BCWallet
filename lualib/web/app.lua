@@ -91,25 +91,31 @@ end
 local function static(root, file)
     file = root..file
     local fd = io.open(file, "r")
-    local read = function ()
+    local allcontent = ""
+    while true do
         local content = fd:read(1024 * 128)
         if content then
-            return content
+            if content ~= "" then
+                allcontent = allcontent .. content
+            end
         else
-            fd:close()
+            break
         end
     end
-    return read
+    fd:close()
+    return allcontent
 end
 
 local file_content_type = {
+    json = "application/json",
     js = "text/javascript",
     html = "text/html",
     css = "text/css",
+    txt = "text/plain",
+    png = "image/png",
     jpg = "image/jpeg",
     jpeg = "image/jpeg",
-    txt = "text/plain",
-    json = "application/json",
+    mp4 = "video/mp4"
 }
 
 -- 静态文件下载
