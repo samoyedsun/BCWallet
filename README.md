@@ -101,3 +101,10 @@ luarocks install luacheck
 #测试
 luacheck test.lua
 ```
+
+create_wallet
+```
+PROTO:  POST
+URL:    localhost:8203/wallet/create_wallet
+PARAM:  {"wallet_name":"abc117"}
+```
