@@ -72,6 +72,70 @@ function REQUEST:walletpassphrase(msg)
     return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
 end
 
+-- 获取钱包信息
+function REQUEST:getwalletinfo(msg)
+    if type(msg) ~= "table" or
+        type(msg.wallet_name) ~= "string" then
+        return {code = code.ERROR_CLIENT_PARAMETER_TYPE, err = code.ERROR_CLIENT_PARAMETER_TYPE_MSG}
+    end
+    local wallet_name = msg.wallet_name
+    local method = "getwalletinfo"
+    local param = conf.OMNICORE_GENERATION_PARAMS(method, {})
+    local path = "/wallet/" .. wallet_name
+    local host = conf.OMNICORE_HOST
+    local res = comm.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    if type(res.error) == "table" then
+       logger.debug("%s error_msg:%s", method, cjson_encode(res.error))
+       return {code = code.ERROR_REQUEST_THIRD_PARTY, err = code.ERROR_REQUEST_THIRD_PARTY_MSG}
+    end
+    local data = res.result
+    return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
+end
+
+-- 新建钱包地址
+function REQUEST:getnewaddress(msg)
+    if type(msg) ~= "table" or
+        type(msg.lable) ~= "string" or
+        type(msg.wallet_name) ~= "string" then
+        return {code = code.ERROR_CLIENT_PARAMETER_TYPE, err = code.ERROR_CLIENT_PARAMETER_TYPE_MSG}
+    end
+    local lable = msg.lable
+    local wallet_name = msg.wallet_name
+    local method = "getnewaddress"
+    local param = conf.OMNICORE_GENERATION_PARAMS(method, {lable})
+    local path = "/wallet/" .. wallet_name
+    local host = conf.OMNICORE_HOST
+    local res = comm.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    if type(res.error) == "table" then
+        logger.debug("%s error_msg:%s", method, cjson_encode(res.error))
+        return {code = code.ERROR_REQUEST_THIRD_PARTY, err = code.ERROR_REQUEST_THIRD_PARTY_MSG}
+    end
+    local data = res.result
+    return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
+end
+
+-- 获取USDT数量
+function REQUEST:omni_getbalance(msg)
+    if type(msg) ~= "table" or
+        type(msg.address) ~= "string" or
+        type(msg.wallet_name) ~= "string" then
+        return {code = code.ERROR_CLIENT_PARAMETER_TYPE, err = code.ERROR_CLIENT_PARAMETER_TYPE_MSG}
+    end
+    local address = msg.address
+    local wallet_name = msg.wallet_name
+    local method = "omni_getbalance"
+    local param = conf.OMNICORE_GENERATION_PARAMS(method, {address, 31})
+    local path = "/"
+    local host = conf.OMNICORE_HOST
+    local res = comm.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    if type(res.error) == "table" then
+        logger.debug("%s error_msg:%s", method, cjson_encode(res.error))
+        return {code = code.ERROR_REQUEST_THIRD_PARTY, err = code.ERROR_REQUEST_THIRD_PARTY_MSG}
+    end
+    local data = res.result
+    return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
+end
+
 local root = {}
 
 function root.request(req)
