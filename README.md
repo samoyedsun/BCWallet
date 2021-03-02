@@ -101,10 +101,47 @@ luarocks install luacheck
 #测试
 luacheck test.lua
 ```
+---
 
-create_wallet
+创建钱包
 ```
 PROTO:  POST
-URL:    localhost:8203/wallet/create_wallet
-PARAM:  {"wallet_name":"abc117"}
+URL:    localhost:8203/wallet/createwallet
+PARAM:  {"wallet_name":"abc111"}
+```
+加密钱包
+```
+PROTO:  POST
+URL:    localhost:8203/wallet/encryptwallet
+PARAM:  {"wallet_name":"abc111", "passphrase":"qazwsx123"}
+```
+解密钱包 超时后自动锁定
+```
+PROTO:  POST
+URL:    localhost:8203/wallet/walletpassphrase
+PARAM:  {"wallet_name":"abc111", "passphrase":"qazwsx123", "timeout":60}
+```
+获取钱包信息
+```
+PROTO:  POST
+URL:    localhost:8203/wallet/getwalletinfo
+PARAM:  {"wallet_name":"abc111"}
+```
+新建钱包地址
+```
+PROTO:  POST
+URL:    localhost:8203/wallet/getnewaddress
+PARAM:  {"wallet_name":"abc111","lable":"MYUSDT"}
+```
+获取钱包地址
+```
+PROTO:  POST
+URL:    localhost:8203/wallet/getaddressesbylabel
+PARAM:  {"wallet_name":"abc111","lable":"MYUSDT"}
+```
+获取USDT数量
+```
+PROTO:  POST
+URL:    localhost:8203/wallet/omni_getbalance
+PARAM:  {"address":"xxxxxxxxxxxxxxxxxxxxxxx"}
 ```
