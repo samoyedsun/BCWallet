@@ -11,22 +11,10 @@ function REQUEST:create_wallet(msg)
         return {code = code.ERROR_CLIENT_PARAMETER_TYPE, err = code.ERROR_CLIENT_PARAMETER_TYPE_MSG}
     end
     local wallet_name = msg.wallet_name
-    local sendheader = {
-        ["Content-Type"] = "application/json",
-        ["Accept-Charset"] = "utf-8",
-        ["Authorization"] = "Basic " .. conf.OMNICORE_BASIC_AUTH
-    }
-    local param = {
-        id = "1",
-        jsonrpc = "2.0",
-        method = "createwallet",
-        params = {
-            wallet_name
-        }
-    }
+    local param = conf.OMNICORE_GENERATION_PARAMS("createwallet", {wallet_name})
     local path = "/"
     local host = conf.OMNICORE_HOST
-    local res = comm.http_request("POST", host, path, param, sendheader)
+    local res = comm.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
     if type(res.error) == "table" then
        logger.debug("REQUEST:create_wallet error_msg:%s", cjson_encode(res.error))
        return {code = code.ERROR_REQUEST_THIRD_PARTY, err = code.ERROR_REQUEST_THIRD_PARTY_MSG}
@@ -35,66 +23,24 @@ function REQUEST:create_wallet(msg)
     return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
 end
 
-function REQUEST:wechat_login(msg)
-    local tmp_code = msg.code
-    local platform = msg.platform
-    if type(tmp_code) ~= "string" or
-        type(platform) ~= "string" then
+function REQUEST:encrypt_wallet(msg)
+    if type(msg) ~= "table" or
+        type(msg.passphrase) ~= "string" or
+        type(msg.wallet_name) ~= "string" then
         return {code = code.ERROR_CLIENT_PARAMETER_TYPE, err = code.ERROR_CLIENT_PARAMETER_TYPE_MSG}
     end
+    local passphrase = msg.passphrase
+    local wallet_name = msg.wallet_name
+    local param = conf.OMNICORE_GENERATION_PARAMS("encryptwallet", {passphrase})
+    local path = "/wallet/" .. wallet_name
+    local host = conf.OMNICORE_HOST
+    local res = comm.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    if type(res.error) == "table" then
+       logger.debug("REQUEST:encrypt_wallet error_msg:%s", cjson_encode(res.error))
+       return {code = code.ERROR_REQUEST_THIRD_PARTY, err = code.ERROR_REQUEST_THIRD_PARTY_MSG}
+    end
+    local data = res.result
     return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
-end
-
-function REQUEST:fetch_token(msg)
-    local uid = msg.uid
-    local platform = msg.platform
-    if type(uid) ~= "number" or
-        type(platform) ~= "string" then
-        return {code = code.ERROR_CLIENT_PARAMETER_TYPE, err = code.ERROR_CLIENT_PARAMETER_TYPE_MSG}
-    end
-    return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
-end
-
-function REQUEST:wechat_config(msg)
-    local platform = msg.platform
-    if type(platform) ~= "string" then
-        return {code = code.ERROR_CLIENT_PARAMETER_TYPE, err = code.ERROR_CLIENT_PARAMETER_TYPE_MSG}
-    end
-    return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
-end
-
-function REQUEST:wechat_pay_unifiedorder(msg)
-    local uid = msg.uid
-    local id = msg.id
-    if type(uid) ~= "number" or
-        type(id) ~= "number" then
-        return {code = code.ERROR_CLIENT_PARAMETER_TYPE, err = code.ERROR_CLIENT_PARAMETER_TYPE_MSG}
-    end
-    return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
-end
-
-function REQUEST:wechat_pay(msg)
-    local uid = msg.uid
-    local id = msg.id
-    local out_trade_no = msg.out_trade_no
-    if type(uid) ~= "number" or
-        type(id) ~= "number" or
-        type(out_trade_no) ~= "string" then
-        return {code = code.ERROR_CLIENT_PARAMETER_TYPE, err = code.ERROR_CLIENT_PARAMETER_TYPE_MSG}
-    end
-    return {code = code.SUCCEED, err = code.SUCCEED_MSG}
-end
-
-function REQUEST:apple_pay(msg)
-    local uid = msg.uid
-    local id = msg.id
-    local reciept_data = msg.reciept_data
-    if type(uid) ~= "number" or
-        type(id) ~= "number" or
-        type(reciept_data) ~= "string" then
-        return {code = code.ERROR_CLIENT_PARAMETER_TYPE, err = code.ERROR_CLIENT_PARAMETER_TYPE_MSG}
-    end
-    return {code = code.SUCCEED, err = code.SUCCEED_MSG}
 end
 
 local root = {}
