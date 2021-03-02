@@ -117,12 +117,10 @@ end
 -- 获取USDT数量
 function REQUEST:omni_getbalance(msg)
     if type(msg) ~= "table" or
-        type(msg.address) ~= "string" or
-        type(msg.wallet_name) ~= "string" then
+        type(msg.address) ~= "string" then
         return {code = code.ERROR_CLIENT_PARAMETER_TYPE, err = code.ERROR_CLIENT_PARAMETER_TYPE_MSG}
     end
     local address = msg.address
-    local wallet_name = msg.wallet_name
     local method = "omni_getbalance"
     local param = conf.OMNICORE_GENERATION_PARAMS(method, {address, 31})
     local path = "/"
