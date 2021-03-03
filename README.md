@@ -107,41 +107,81 @@ luacheck test.lua
 ```
 PROTO:  POST
 URL:    localhost:8203/wallet/createwallet
-PARAM:  {"wallet_name":"abc111"}
+PARAM:  {
+            "wallet_name":"abc111"
+        }
 ```
 加密钱包
 ```
 PROTO:  POST
 URL:    localhost:8203/wallet/encryptwallet
-PARAM:  {"wallet_name":"abc111", "passphrase":"qazwsx123"}
+PARAM:  {
+            "wallet_name":"abc111",
+            "passphrase":"qazwsx123"
+        }
 ```
 解密钱包 超时后自动锁定
 ```
 PROTO:  POST
 URL:    localhost:8203/wallet/walletpassphrase
-PARAM:  {"wallet_name":"abc111", "passphrase":"qazwsx123", "timeout":60}
+PARAM:  {
+            "wallet_name":"abc111",
+            "passphrase":"qazwsx123",
+            "timeout":60
+        }
 ```
 获取钱包信息
 ```
 PROTO:  POST
 URL:    localhost:8203/wallet/getwalletinfo
-PARAM:  {"wallet_name":"abc111"}
+PARAM:  {
+            "wallet_name":"abc111"
+        }
 ```
 新建钱包地址
 ```
 PROTO:  POST
 URL:    localhost:8203/wallet/getnewaddress
-PARAM:  {"wallet_name":"abc111","lable":"MYUSDT"}
+PARAM:  {
+            "wallet_name":"abc111",
+            "lable":"MYUSDT"
+        }
 ```
 获取钱包地址
 ```
 PROTO:  POST
 URL:    localhost:8203/wallet/getaddressesbylabel
-PARAM:  {"wallet_name":"abc111","lable":"MYUSDT"}
+PARAM:  {
+            "wallet_name":"abc111",
+            "lable":"MYUSDT"
+        }
 ```
 获取USDT数量
 ```
 PROTO:  POST
 URL:    localhost:8203/wallet/omni_getbalance
-PARAM:  {"address":"xxxxxxxxxxxxxxxxxxxxxxx"}
+PARAM:  {
+            "address":"xxxxxxxxxxxxxxxxxxxxxxx"
+        }
+```
+转账
+```
+PROTO:  POST
+URL:    localhost:8203/wallet/omni_funded_send
+PARAM:  {
+            "wallet_name":"abc111",
+            "fromaddress":"xxxxxxxxxxxxxxxxxxxxxxx",
+            "toaddress":"xxxxxxxxxxxxxxxxxxxxxxx",
+            "amount":10,
+            "feeaddress":"xxxxxxxxxxxxxxxxxxxxxxx",
+        }
+```
+查询
+```
+PROTO:  POST
+URL:    localhost:8203/wallet/omni_gettransaction
+PARAM:  {
+            "wallet_name":"abc111",
+            "txid":"xxxxxxxxxxxxxxxxxxxxxxx",
+        }
 ```

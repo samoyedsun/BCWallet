@@ -156,6 +156,54 @@ function REQUEST:omni_getbalance(msg)
     return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
 end
 
+function REQUEST:omni_funded_send(msg)
+    if type(msg) ~= "table" or
+        type(msg.wallet_name) ~= "string" or
+        type(msg.fromaddress) ~= "string" or
+        type(msg.toaddress) ~= "string" or
+        type(msg.amount) ~= "string" or
+        type(msg.feeaddress) ~= "string" then
+        return {code = code.ERROR_CLIENT_PARAMETER_TYPE, err = code.ERROR_CLIENT_PARAMETER_TYPE_MSG}
+    end
+    local wallet_name = msg.wallet_name
+    local fromaddress = msg.fromaddress
+    local toaddress = msg.toaddress
+    local amount = msg.amount
+    local feeaddress = msg.feeaddress
+    local method = "omni_funded_send"
+    local param = conf.OMNICORE_GENERATION_PARAMS(method, {fromaddress, toaddress, 31, amount, feeaddress})
+    local path = "/wallet/" .. wallet_name
+    local host = conf.OMNICORE_HOST
+    local res = comm.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    if type(res.error) == "table" then
+        logger.debug("%s error_msg:%s", method, cjson_encode(res.error))
+        return {code = code.ERROR_REQUEST_THIRD_PARTY, err = code.ERROR_REQUEST_THIRD_PARTY_MSG}
+    end
+    local data = res.result
+    return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
+end
+
+function REQUEST:omni_gettransaction(msg)
+    if type(msg) ~= "table" or
+        type(msg.wallet_name) ~= "string" or
+        type(msg.txid) ~= "string" then
+        return {code = code.ERROR_CLIENT_PARAMETER_TYPE, err = code.ERROR_CLIENT_PARAMETER_TYPE_MSG}
+    end
+    local wallet_name = msg.wallet_name
+    local txid = msg.txid
+    local method = "omni_funded_send"
+    local param = conf.OMNICORE_GENERATION_PARAMS(method, {txid})
+    local path = "/wallet/" .. wallet_name
+    local host = conf.OMNICORE_HOST
+    local res = comm.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    if type(res.error) == "table" then
+        logger.debug("%s error_msg:%s", method, cjson_encode(res.error))
+        return {code = code.ERROR_REQUEST_THIRD_PARTY, err = code.ERROR_REQUEST_THIRD_PARTY_MSG}
+    end
+    local data = res.result
+    return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
+end
+
 local root = {}
 
 function root.request(req)
