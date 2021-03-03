@@ -156,6 +156,28 @@ function REQUEST:omni_getbalance(msg)
     return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
 end
 
+-- 获取USDT数量  need to add config to bitcoin.conf
+-- please see http://www.ryanbrowndev.com/2017/06/21/dash-node-address-balance-querying-error-no-information-available-for-address/
+-- please see https://github.com/bitpay/bitcore-node/blob/master/docs/upgrade.md
+function REQUEST:getaddressbalance(msg)
+    if type(msg) ~= "table" or
+        type(msg.addresses) ~= "table" then
+        return {code = code.ERROR_CLIENT_PARAMETER_TYPE, err = code.ERROR_CLIENT_PARAMETER_TYPE_MSG}
+    end
+    local addresses = msg.addresses
+    local method = "getaddressbalance"
+    local param = conf.OMNICORE_GENERATION_PARAMS(method, {{addresses = addresses}})
+    local path = "/"
+    local host = conf.OMNICORE_HOST
+    local res = comm.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    if type(res.error) == "table" then
+        logger.debug("%s error_msg:%s", method, cjson_encode(res.error))
+        return {code = code.ERROR_REQUEST_THIRD_PARTY, err = code.ERROR_REQUEST_THIRD_PARTY_MSG}
+    end
+    local data = res.result
+    return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
+end
+
 function REQUEST:omni_funded_send(msg)
     if type(msg) ~= "table" or
         type(msg.wallet_name) ~= "string" or

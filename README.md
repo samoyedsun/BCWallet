@@ -161,7 +161,15 @@ PARAM:  {
 PROTO:  POST
 URL:    localhost:8203/wallet/omni_getbalance
 PARAM:  {
-            "address":"xxxxxxxxxxxxxxxxxxxxxxx"
+            "address":"xxxxxxxxxxx"
+        }
+```
+获取USDT数量
+```
+PROTO:  POST
+URL:    localhost:8203/wallet/getaddressbalance
+PARAM:  {
+            "addresses":{"xxxxxxxxxxx","xxxxxxxxxx"}
         }
 ```
 转账
