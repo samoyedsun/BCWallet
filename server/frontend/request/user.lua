@@ -9,20 +9,18 @@ local REQUEST = {}
 -- 创建钱包
 function REQUEST:login(msg)
     if type(msg) ~= "table" or
-        type(msg.wallet_name) ~= "string" then
+        type(msg.username) ~= "string" or
+        type(msg.password) ~= "string" then
         return {code = code.ERROR_CLIENT_PARAMETER_TYPE, err = code.ERROR_CLIENT_PARAMETER_TYPE_MSG}
     end
-    local wallet_name = msg.wallet_name
-    local method = "createwallet"
-    local param = conf.OMNICORE_GENERATION_PARAMS(method, {wallet_name})
-    local path = "/"
-    local host = conf.OMNICORE_HOST
-    local res = comm.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
-    if type(res.error) == "table" then
-       logger.debug("%s error_msg:%s", method, cjson_encode(res.error))
-       return {code = code.ERROR_REQUEST_THIRD_PARTY, err = code.ERROR_REQUEST_THIRD_PARTY_MSG}
-    end
-    local data = res.result
+
+    local username = msg.username
+    local password = msg.password
+
+    local data = {
+        username = username,
+        password = password
+    }
     return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
 end
 

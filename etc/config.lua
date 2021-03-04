@@ -37,3 +37,10 @@ backend_http_port = 8103
 backend_ws_port = 9848
 frontend_http_port = 8203
 frontend_ws_port = 9948
+
+mongo_host = "127.0.0.1"
+mongo_port = 27017
+mongo_db_name = "bcwallet"
+mongo_username = "bcwallet"
+mongo_password = "2habYaVFQFKmuji5"
+mongo_auth_mod = "scram_sha1"
