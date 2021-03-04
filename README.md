@@ -156,6 +156,15 @@ PARAM:  {
             "lable":"MYUSDT"
         }
 ```
+获取钱包地址信息
+```
+PROTO:  POST
+URL:    localhost:8203/wallet/getaddressinfo
+PARAM:  {
+            "wallet_name":"abc111",
+            "address":"xxxxxxxxxxx"
+        }
+```
 获取USDT数量
 ```
 PROTO:  POST

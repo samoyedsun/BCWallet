@@ -136,6 +136,28 @@ function REQUEST:getaddressesbylabel(msg)
     return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
 end
 
+-- 获取钱包地址信息
+function REQUEST:getaddressinfo(msg)
+    if type(msg) ~= "table" or
+        type(msg.address) ~= "string" or
+        type(msg.wallet_name) ~= "string" then
+        return {code = code.ERROR_CLIENT_PARAMETER_TYPE, err = code.ERROR_CLIENT_PARAMETER_TYPE_MSG}
+    end
+    local address = msg.address
+    local wallet_name = msg.wallet_name
+    local method = "getaddressinfo"
+    local param = conf.OMNICORE_GENERATION_PARAMS(method, {address})
+    local path = "/wallet/" .. wallet_name
+    local host = conf.OMNICORE_HOST
+    local res = comm.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    if type(res.error) == "table" then
+        logger.debug("%s error_msg:%s", method, cjson_encode(res.error))
+        return {code = code.ERROR_REQUEST_THIRD_PARTY, err = code.ERROR_REQUEST_THIRD_PARTY_MSG}
+    end
+    local data = res.result
+    return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
+end
+
 -- 获取USDT数量
 function REQUEST:omni_getbalance(msg)
     if type(msg) ~= "table" or
