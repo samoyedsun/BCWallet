@@ -5,9 +5,9 @@
     <meta charset="utf-8" />
     <title>用户登录</title>
     <link rel="stylesheet" href="css/style.css" />
+    <script src="js/jquery-3.6.0.min.js" type="text/javascript"></script>
     <script src="bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
     <link href="bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet" type="text/css" />
-    <script src="js/jquery-3.6.0.min.js" type="text/javascript"></script>
 	<script src="js/logic.js" type="text/javascript"></script>
     <style>
         #from
@@ -45,19 +45,21 @@
     </style>
     <script type="text/javascript">
 		var checkUsername = function(str) {
+			$('#usernameerrmsg').attr("class","alert-danger hide");
 			var re = /^1\d{10}$/
 			if(re.test(str)){
 				return true;
 			}
-			alert("用户名必须是手机号");
+			$('#usernameerrmsg').attr("class","alert-danger");
 			return false;
 		}
 		var checkPassword = function(str){
+			$('#passworderrmsg').attr("class","alert-danger hide");
 			var re = /^[a-zA-z]\w{3,15}$/;
 			if(re.test(str)){
 				return true
 			}
-			alert("密码需要由字母、数字、下划线组成，字母开头，4-16位。");
+			$('#passworderrmsg').attr("class","alert-danger");
 			return false;
 		}
 		var getReqData = function() {
@@ -87,6 +89,7 @@
     </script>
 </head>
 <body>
+
     <form id="from">
     <div class="mycenter">
         <div class="mysign">
@@ -96,14 +99,14 @@
 				</h2>
             </div>
             <div class="col-lg-10">
-                <input type="text" class="form-control" name="username" placeholder="请输入账户名" required
-                    autofocus />
+                <input type="text" class="form-control" name="username" placeholder="请输入账户名" required autofocus />
+				<div class="alert alert-danger hide" id="usernameerrmsg">用户名必须是手机号</div>
             </div>
             <div class="col-lg-10">
             </div>
             <div class="col-lg-10">
-                <input type="password" class="form-control" name="password" placeholder="请输入密码" required
-                    autofocus />
+                <input type="password" class="form-control" name="password" placeholder="请输入密码" required autofocus />
+				<div class="alert alert-danger hide" id="passworderrmsg">密码需要由字母、数字、下划线组成，字母开头，4-16位。</div>
             </div>
             <div class="col-lg-10">
             </div>
