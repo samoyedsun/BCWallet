@@ -81,6 +81,11 @@
 ./bin/start.sh -U
 ```
 
+启动MONGODB服务
+```sh
+docker run -it -d -p 27017:27017 -v ${PWD}/data:/root/data --name mongo mongo
+```
+
 常见问答A&Q：
 - MAC下编译如果遇到的问题:
     - 以下报错

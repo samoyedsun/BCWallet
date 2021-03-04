@@ -3,6 +3,7 @@ local jproto = require "jproto"
 local webapp = require "web.app"
 local webproto = require "web.proto"
 local web_util = require "utils.web_util"
+local user = require "server.frontend.request.user"
 local wallet = require "server.frontend.request.wallet"
 local logger = log4.get_logger("server_frontend_webapp")
 web_util.set_logger(logger)
@@ -31,6 +32,11 @@ webapp.before(".*", function (req, res)
 end)
 webapp.before(".*", function(req, res)
     logger.debug("before web req %s body %s", tostring(req.url), tostring(req.body))
+    return true
+end)
+
+webapp.use("^/user/:name$", function (req, res)
+    res:json(user.request(req))
     return true
 end)
 
