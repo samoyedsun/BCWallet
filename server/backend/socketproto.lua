@@ -4,7 +4,7 @@ local jproto = require "jproto"
 local socketproto = require "socket.proto"
 local code = require "server.config.code"
 local user = require "server.backend.request.socket_user"
-local logger = log4.get_logger("server_backend_socketproto")
+local logger = log4.get_logger(SERVICE_NAME)
 
 -- local host = sproto.parse(gate_proto.c2s):host "package"
 -- local host_request = host:attach(sproto.parse(gate_proto.s2c))

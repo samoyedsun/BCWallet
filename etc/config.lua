@@ -14,9 +14,9 @@ snax = gameservice
 cpath = skynetroot.."cservice/?.so;".. "" ..cloudroot.."cservice/?.so" 
 
 lua_path = skynetroot .. "lualib/?.lua;" ..
-            -- skynetroot .. "lualib/compat10/?.lua;" ..
-            cloudroot .. "lualib/?.lua;"..
-            cloudroot .. "lualib/rpc/?.lua;".. 
+            cloudroot .. "server/?.lua;" ..
+            cloudroot .. "lualib/?.lua;" ..
+            cloudroot .. "lualib/rpc/?.lua;" .. 
             "./test/?.lua;" ..
             "./lualib/?.lua;" ..
             "./?.lua" 

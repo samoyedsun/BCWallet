@@ -1,5 +1,5 @@
 local skynet = require "skynet"
-local logger = log4.get_logger("app")
+local logger = log4.get_logger(SERVICE_NAME)
 
 local LOW_UID = 1
 local HIG_UID = 100000

@@ -2,7 +2,7 @@ local skynet = require "skynet"
 local socket = require "socket"
 local sproto = require "sproto"
 
-local logger = log4.get_logger("client")
+local logger = log4.get_logger(SERVICE_NAME)
 
 local HOST 
 local SPROTO_REQUEST 

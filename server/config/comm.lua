@@ -1,5 +1,5 @@
 local httpc = require "http.httpc"
-local logger = log4.get_logger("server_config_comm")
+local logger = log4.get_logger(SERVICE_NAME)
 
 local root = {}
 

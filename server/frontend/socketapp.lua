@@ -3,7 +3,7 @@ local socketapp = require "socket.app"
 local socketproto = require "server.frontend.socketproto"
 local code = require "server.config.code"
 local session_class = require "server.session"
-local logger = log4.get_logger("server_frontend_socketapp")
+local logger = log4.get_logger(SERVICE_NAME)
 
 socketapp.use("^c2s$", socketproto.c2s_process)
 socketapp.use("^s2c$", socketproto.s2c_process)

@@ -2,7 +2,7 @@ local skynet = require "skynet"
 local code = require "server.config.code"
 local conf = require "server.config.conf"
 local comm = require "server.config.comm"
-local logger = log4.get_logger("server_frontend_request_web_user")
+local logger = log4.get_logger(SERVICE_NAME)
 
 local REQUEST = {}
 

@@ -1,6 +1,6 @@
 local skynet = require "skynet"
 
-local logger = log4.get_logger("webapp")
+local logger = log4.get_logger(SERVICE_NAME)
 local IS_DEBUG = IS_DEBUG
 
 local root = {}

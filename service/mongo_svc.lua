@@ -1,17 +1,17 @@
 local skynet = require("skynet")
-local profile = require "skynet.profile"
+local profile = require("skynet.profile")
 local mongo = require("skynet.db.mongo")
-local logger = log4.get_logger("db")
+local logger = log4.get_logger(SERVICE_NAME)
 
 local db
 
 local modules = {}
---modules.vip 				= require("vip.vip_db")
---modules.wishPool 			= require("wish_pool.wish_pool_db")
+modules.user_db             =   require("server.user.user_db")
+modules.autoincrid_db       =   require("server.autoincrid.autoincrid_db")
 
 local ti = {}
-local function profileCall(func, cmd, ...)
-	profile.start()
+local function profile_call(func, cmd, ...)
+    profile.start()
 	local ret1, ret2, ret3, ret4 = func(...)
 	local time = profile.stop()
 	local p = ti[cmd]
@@ -26,33 +26,30 @@ end
 
 local lua = {}
 function lua.dispatch(session, address, cmd, ...)
-    local moduleName, funcName = string.match(cmd, "(%w+)%.(%w+)")
-    local module = modules[moduleName]
+    local module_name, func_name = string.match(cmd, "([_%w]+)%.([_%w]+)")
+    local module = modules[module_name]
     local ret1, ret2, ret3, ret4
     if module then
-        local func = module[funcName]
+        local func = module[func_name]
         if func then
-            ret1, ret2, ret3, ret4 = profileCall(func, cmd, db, ...)
+            ret1, ret2, ret3, ret4 = profile_call(func, cmd, db, ...)
         else
-            dump(cmd)
-            logger.Errorf("db func[%s] is not found", funcName)
+            logger.error("db func[%s] is not found", func_name)
         end
     else
-        dump(moduleName)
-        dump(cmd)
-        logger.Errorf("db module[%s] is not found", moduleName)
+        logger.error("db module[%s] is not found", module_name)
     end
     if session > 0 then
         skynet.ret(skynet.pack(ret1, ret2, ret3, ret4))
     elseif ret1 ~= nil then
-        logger.Errorf("cmd[%s] had return value, but caller[%s] not used call function", cmd, address)
+        logger.error("cmd[%s] had return value, but caller[%s] not used call function", cmd, address)
     end
 end
 
 skynet.dispatch("lua", lua.dispatch)
 
 skynet.info_func(function()
-  return ti
+    return ti
 end)
 
 local function connect()

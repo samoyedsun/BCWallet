@@ -4,7 +4,7 @@ local jproto = require "jproto"
 local webproto = require "web.proto"
 local user = require "server.backend.request.web_user"
 local web_util = require "utils.web_util"
-local logger = log4.get_logger("server_backend_webapp")
+local logger = log4.get_logger(SERVICE_NAME)
 web_util.set_logger(logger)
 local webproto = webproto:new(jproto.host)
 

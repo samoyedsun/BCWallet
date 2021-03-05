@@ -3,10 +3,13 @@ local jproto = require "jproto"
 local webapp = require "web.app"
 local webproto = require "web.proto"
 local web_util = require "utils.web_util"
-local user = require "server.frontend.request.user"
-local wallet = require "server.frontend.request.wallet"
-local logger = log4.get_logger("server_frontend_webapp")
+local code = require "config.code"
+local user = require "frontend.request.user"
+local wallet = require "frontend.request.wallet"
+local logger = log4.get_logger(SERVICE_NAME)
 web_util.set_logger(logger)
+
+local modules = {}
 
 local webproto = webproto:new(jproto.host)
 
@@ -36,7 +39,27 @@ webapp.before(".*", function(req, res)
 end)
 
 webapp.use("^/user/:name$", function (req, res)
-    res:json(user.request(req))
+    modules.user = modules.user or require("user.user_impl")
+    local REQUEST = modules.user
+
+    local name = req.params.name
+    if not REQUEST[name] then
+        return {code = code.ERROR_NAME_UNFOUND, err = code.ERROR_NAME_UNFOUND_MSG}
+    end
+    local msg = req.query
+    if req.method == "POST" then
+        msg = cjson_decode(req.body)
+    end
+    local trace_err = ""
+    local trace = function (e)
+        trace_err = e .. debug.traceback()
+    end
+    local ok, res_data = xpcall(REQUEST[name], trace, req, msg)
+    if not ok then
+        logger.error("%s %s %s", req.path, tostring(msg), trace_err)
+        return {code = code.ERROR_INTERNAL_SERVER, err = code.ERROR_INTERNAL_SERVER_MSG}
+    end
+    res:json(res_data)
     return true
 end)
 

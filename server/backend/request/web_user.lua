@@ -1,6 +1,6 @@
 local skynet = require "skynet"
 local code = require "server.config.code"
-local logger = log4.get_logger("server_frontend_request_web_user")
+local logger = log4.get_logger(SERVICE_NAME)
 
 local REQUEST = {}
 
