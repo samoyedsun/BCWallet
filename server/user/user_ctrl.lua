@@ -68,7 +68,6 @@ function root.login(msg)
 	if not result then
 		return {code = code.ERROR_USER_NOT_EXIST, err = code.ERROR_USER_NOT_EXIST_MSG}
 	end
-	print(tostring(result))
 	local wallet_address = result.wallet_address
 
 	local ok, result = wallet_usdt.omni_getbalance(wallet_address)

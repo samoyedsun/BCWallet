@@ -109,12 +109,10 @@ function root.omni_getbalance(address)
     return true, res.result
 end
 
--- 获取USDT数量  need to add config to bitcoin.conf
--- please see http://www.ryanbrowndev.com/2017/06/21/dash-node-address-balance-querying-error-no-information-available-for-address/
--- please see https://github.com/bitpay/bitcore-node/blob/master/docs/upgrade.md
-function root.getaddressbalance(addresses)
-    local method = "getaddressbalance"
-    local param = conf.OMNICORE_GENERATION_PARAMS(method, {{addresses = addresses}})
+-- 获取USDT数量
+function root.omni_getallbalancesforid()
+    local method = "omni_getallbalancesforid"
+    local param = conf.OMNICORE_GENERATION_PARAMS(method, {31})
     local path = "/"
     local host = conf.OMNICORE_HOST
     local res = common.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
