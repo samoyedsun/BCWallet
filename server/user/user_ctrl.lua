@@ -75,6 +75,7 @@ function root.login(msg)
 		return {code = code.ERROR_REQUEST_THIRD_PARTY, err = code.ERROR_REQUEST_THIRD_PARTY_MSG, data = result}
 	end
 
+	
     return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = result}
 end
 
