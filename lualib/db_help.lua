@@ -1,5 +1,5 @@
 --db管理类
-local skynet = require("skynet")
+local skynet = require "skynet"
 local root = {}
 
 local db_svc

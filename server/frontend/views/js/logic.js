@@ -12,7 +12,7 @@ function userLogin(reqData){
                 if (resData.code == 20000) {
                     console.log("成功!");
                 } else {
-                    console.log(resData.err);
+                    alert(resData.err);
                 }
             } else {
                 alert("请求失败!" + xhr.status)
@@ -33,7 +33,7 @@ function userRegister(reqData){
                 if (resData.code == 20000) {
                     console.log("成功!");
                 } else {
-                    console.log(resData.err);
+                    alert(resData.err);
                 }
             } else {
                 alert("请求失败!" + xhr.status)

@@ -1,31 +1,14 @@
 local code = require "config.code"
+local user_ctrl = require "user.user_ctrl"
 
 local root = {}
 
 function root:register(msg)
-    print("===============register", tostring(self))
-    print("===============register", tostring(msg))
-    local username = msg.username
-    local password = msg.password
-
-    local data = {
-        username = username,
-        password = password
-    }
-    return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
+    return user_ctrl.register(msg, self.ip)
 end
 
 function root:login(msg)
-    print("===============login", tostring(self))
-    print("===============login", tostring(msg))
-    local username = msg.username
-    local password = msg.password
-
-    local data = {
-        username = username,
-        password = password
-    }
-    return {code = code.SUCCEED, err = code.SUCCEED_MSG, data = data}
+    return user_ctrl.login(msg)
 end
 
 return root

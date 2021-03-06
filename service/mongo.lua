@@ -1,6 +1,6 @@
-local skynet = require("skynet")
+local skynet = require "skynet"
 require "skynet.manager"
-local autoincrid_ctrl = require("server.autoincrid.autoincrid_ctrl")
+local autoincrid_ctrl = require "server.autoincrid.autoincrid_ctrl"
 
 local DB_SVC_COUNT = ...
 local svcs = {}
