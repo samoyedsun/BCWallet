@@ -9,6 +9,8 @@ function root.create_user(db, param)
     data.login_ip = param.login_ip
     data.avatar = param.avatar
     data.gender = param.gender
+    data.wallet_name = param.wallet_name
+    data.wallet_address = param.wallet_address
 
     db.user:safe_insert(data)
     
@@ -17,8 +19,13 @@ end
 
 function root.get_user(db, param)
     local username = param.username
-    local ret = db.user:findOne({username = username}, {_id = 1})
-    return ret and ret._id
+    return db.user:findOne({
+        username = username
+    }, {
+        _id = 1,
+        wallet_name = 1,
+        wallet_address = 1
+    })
 end
 
 return root
