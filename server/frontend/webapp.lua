@@ -80,6 +80,6 @@ webapp.after(".*", function(req, res)
     return true
 end)
 
-webapp.static("^/*", "./server/frontend/views/")
+-- webapp.static("^/*", "./server/frontend/views/")
 
 return webapp
