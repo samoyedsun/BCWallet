@@ -28,8 +28,9 @@ webproto:after(".*", web_util.after_log)
 
 --------------------------------------------------------------
 webapp.before(".*", function (req, res)
-    res.headers["Access-Control-Allow-Origin"] = "*"
-    res.headers["Access-Control-Allow-Methods"] = "*"
+    res.headers["Access-Control-Allow-Origin"] = "http://localhost:8080"
+    res.headers["Access-Control-Allow-Methods"] = "POST"
+    res.headers["Access-Control-Allow-Headers"] = "Content-Type,XFILENAME,XFILECATEGORY,XFILESIZE"
     res.headers["Access-Control-Allow-Credentials"] = "true"
     return true
 end)
