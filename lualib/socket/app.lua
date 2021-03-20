@@ -32,9 +32,9 @@ end
 
 -- 触发事件
 function root:emit(name, ...)
-    local trace_err
+    local trace_err = ""
     local trace = function (e)
-        trace_err = e .. debug.traceback()
+        trace_err = tostring(e) .. debug.traceback()
     end
     local ok = xpcall(match_process, trace, PROCESS, name, self, ...)
     if not ok then          

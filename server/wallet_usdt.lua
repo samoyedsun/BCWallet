@@ -1,6 +1,5 @@
 local skynet = require "skynet"
 local conf = require "config.conf"
-local common = require "common"
 local logger = log4.get_logger(SERVICE_NAME)
 
 local root = {}
@@ -11,7 +10,7 @@ function root.createwallet(wallet_name)
     local param = conf.OMNICORE_GENERATION_PARAMS(method, {wallet_name})
     local path = "/"
     local host = conf.OMNICORE_HOST
-    local res = common.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    local res = http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
     if type(res.error) == "table" then
        return false, res.error
     end
@@ -24,7 +23,7 @@ function root.encryptwallet(wallet_name, passphrase)
     local param = conf.OMNICORE_GENERATION_PARAMS(method, {passphrase})
     local path = "/wallet/" .. wallet_name
     local host = conf.OMNICORE_HOST
-    local res = common.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    local res = http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
     if type(res.error) == "table" then
        return false, res.error
     end
@@ -37,7 +36,7 @@ function root.walletpassphrase(wallet_name, passphrase, timeout)
     local param = conf.OMNICORE_GENERATION_PARAMS(method, {passphrase, timeout})
     local path = "/wallet/" .. wallet_name
     local host = conf.OMNICORE_HOST
-    local res = common.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    local res = http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
     if type(res.error) == "table" then
        return false, res.error
     end
@@ -50,7 +49,7 @@ function root.getwalletinfo(wallet_name)
     local param = conf.OMNICORE_GENERATION_PARAMS(method, {})
     local path = "/wallet/" .. wallet_name
     local host = conf.OMNICORE_HOST
-    local res = common.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    local res = http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
     if type(res.error) == "table" then
        return false, res.error
     end
@@ -63,7 +62,7 @@ function root.getnewaddress(wallet_name, lable)
     local param = conf.OMNICORE_GENERATION_PARAMS(method, {lable})
     local path = "/wallet/" .. wallet_name
     local host = conf.OMNICORE_HOST
-    local res = common.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    local res = http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
     if type(res.error) == "table" then
        return false, res.error
     end
@@ -76,7 +75,7 @@ function root.getaddressesbylabel(wallet_name, lable)
     local param = conf.OMNICORE_GENERATION_PARAMS(method, {lable})
     local path = "/wallet/" .. wallet_name
     local host = conf.OMNICORE_HOST
-    local res = common.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    local res = http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
     if type(res.error) == "table" then
        return false, res.error
     end
@@ -89,7 +88,7 @@ function root.getaddressinfo(wallet_name, address)
     local param = conf.OMNICORE_GENERATION_PARAMS(method, {address})
     local path = "/wallet/" .. wallet_name
     local host = conf.OMNICORE_HOST
-    local res = common.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    local res = http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
     if type(res.error) == "table" then
        return false, res.error
     end
@@ -102,7 +101,7 @@ function root.omni_getbalance(address)
     local param = conf.OMNICORE_GENERATION_PARAMS(method, {address, 31})
     local path = "/"
     local host = conf.OMNICORE_HOST
-    local res = common.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    local res = http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
     if type(res.error) == "table" then
        return false, res.error
     end
@@ -115,7 +114,7 @@ function root.omni_getallbalancesforid()
     local param = conf.OMNICORE_GENERATION_PARAMS(method, {31})
     local path = "/"
     local host = conf.OMNICORE_HOST
-    local res = common.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    local res = http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
     if type(res.error) == "table" then
        return false, res.error
     end
@@ -127,7 +126,7 @@ function root.omni_funded_send(wallet_name, fromaddress, toaddress, amount, feea
     local param = conf.OMNICORE_GENERATION_PARAMS(method, {fromaddress, toaddress, 31, amount, feeaddress})
     local path = "/wallet/" .. wallet_name
     local host = conf.OMNICORE_HOST
-    local res = common.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    local res = http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
     if type(res.error) == "table" then
        return false, res.error
     end
@@ -139,7 +138,7 @@ function root.omni_gettransaction(wallet_name, txid)
     local param = conf.OMNICORE_GENERATION_PARAMS(method, {txid})
     local path = "/wallet/" .. wallet_name
     local host = conf.OMNICORE_HOST
-    local res = common.http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
+    local res = http_request("POST", host, path, param, conf.OMNICORE_SENDHEADER)
     if type(res.error) == "table" then
        return false, res.error
     end

@@ -132,7 +132,7 @@ end
 local function s2c_request(self, name, args)
     local trace_err = ""
     local trace = function (e)
-        trace_err = e .. debug.traceback()
+        trace_err = tostring(e) .. debug.traceback()
     end
     local ok = xpcall(s2c_process, trace, self, name, args)
     if not ok then
@@ -182,9 +182,9 @@ local function proto_request(self, msg, sz)
         return
     end
     
-    local trace_err
+    local trace_err = ""
     local trace = function (e)
-        trace_err = e .. debug.traceback()
+        trace_err = tostring(e) .. debug.traceback()
     end
     local res = {}          -- 也许应该包含更多信息, 记录整个处理过程路径，方便debug
     local ok = xpcall(c2s_process, trace, self, name, args, res)

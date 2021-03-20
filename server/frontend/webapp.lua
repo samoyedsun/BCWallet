@@ -55,7 +55,7 @@ webapp.use("^/:module/:command$", function (req, res)
     end
     local trace_err = ""
     local trace = function (e)
-        trace_err = e .. debug.traceback()
+        trace_err = tostring(e) .. debug.traceback()
     end
     local ok, res_data = xpcall(REQUEST[command], trace, req, msg)
     if not ok then

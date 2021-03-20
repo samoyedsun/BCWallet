@@ -95,7 +95,7 @@ function root.request(req)
     end
     local trace_err = ""
     local trace = function (e)
-        trace_err = e .. debug.traceback()
+        trace_err = tostring(e) .. debug.traceback()
     end
     local ok, res = xpcall(REQUEST[name], trace, req, msg)
     if not ok then

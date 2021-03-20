@@ -38,7 +38,7 @@ end
 function web:emit(req, name, args, res, ...)
     local trace_err = ""
     local trace = function (e)
-        trace_err = e .. debug.traceback()
+        trace_err = tostring(e) .. debug.traceback()
     end
     if not self.init_process then
         for _, v in ipairs(self.process_before_array) do 

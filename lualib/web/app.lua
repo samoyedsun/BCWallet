@@ -207,7 +207,7 @@ function web.http_request(addr, url, method, headers, path, query, body, fd)
     RES.__index = RES
     local trace_err = ""
     local trace = function (e)
-        trace_err  = e .. debug.traceback()
+        trace_err = tostring(e) .. debug.traceback()
     end
 
     local ok = xpcall(process, trace, req, res)

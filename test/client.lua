@@ -110,9 +110,9 @@ local function client_process_request(self, name, args)
         logger.info("s2c %s args %s not found process", name, tostring(args))
         return
     end
-    local trace_err
+    local trace_err = ""
     local trace = function (e)
-        trace_err = e .. debug.traceback()
+        trace_err = tostring(e) .. debug.traceback()
     end
     local ok, rs = xpcall(f, trace, self, args)
     if not ok then

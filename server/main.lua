@@ -10,6 +10,7 @@ skynet.start(function ()
     end
 
     skynet.newservice("mongo", 1)
+    skynet.newservice("third_api", 1)
 
     --hotfix.start_hotfix_service("skynet", "srv_web", skynet.getenv("backend_http_port"), "server.backend.webapp", 65536)
     --hotfix.start_hotfix_service("skynet", "srv_websocket", skynet.getenv("backend_ws_port"), "server.backend.wsapp", "ws")

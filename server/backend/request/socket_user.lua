@@ -48,7 +48,7 @@ function root:request(name, msg)
 
     local trace_err = ""
     local trace = function (e)
-        trace_err = e .. debug.traceback()
+        trace_err = tostring(e) .. debug.traceback()
     end
     local ok, res = xpcall(REQUEST[name], trace, self, msg)
     if not ok then
