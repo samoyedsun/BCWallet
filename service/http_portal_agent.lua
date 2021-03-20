@@ -1,5 +1,16 @@
 local skynet = require "skynet"
+local socket = require "skynet.socket"
+local httpd = require "http.httpd"
+local sockethelper = require "http.sockethelper"
+local code = require "config.code"
+local modules = require "config.modules"
+local urllib = require "http.url"
+local logger = log4.get_logger(SERVICE_NAME)
 
+
+body_size_limit = ...
+
+--------------------
 local BEFORE_PROCESS = {}
 local AFTER_PROCESS = {}
 local PROCESS = {}              -- 处理模式
@@ -41,8 +52,6 @@ local function internal_server_error(req, res, errmsg)
     return res.code, res.body, res.headers
 end
 
-local web = {}
-
 local function pre_pattern(path)
     local keys = {}
     for k in string.gmatch(path, "/:([%w_]+)") do
@@ -56,33 +65,33 @@ local function pre_pattern(path)
 end
 
 
-function web.use(path, process)
+local function web_use(path, process)
     INIT_PROCESS  = false
     local pattern, keys = pre_pattern(path)
     table.insert(PROCESS, {path= path, pattern = pattern, keys=keys, process = process})
 end
 
 --是否有意义？方便处理排序？
-function web.after(path, process)
+local function web_after(path, process)
     INIT_PROCESS  = false
     local pattern, keys = pre_pattern(path)
     table.insert(AFTER_PROCESS, {path= path, pattern = pattern, keys=keys, process = process})
 end
 
 --是否有意义？方便处理排序？
-function web.before(path, process)
+local function web_before(path, process)
     INIT_PROCESS  = false
     local pattern, keys = pre_pattern(path)
     table.insert(BEFORE_PROCESS, {path= path, pattern = pattern, keys=keys, process = process})
 end
 
-function web.get(path, process)
+local function web_get(path, process)
     INIT_PROCESS  = false
     local pattern, keys = pre_pattern(path)
     table.insert(PROCESS, {path = path, pattern = pattern, keys=keys, process = process, method = "GET"})
 end
 
-function web.post(path, process)
+local function web_post(path, process)
     INIT_PROCESS  = false
     local pattern, keys = pre_pattern(path)
     table.insert(PROCESS, {path = path, pattern = pattern, keys=keys, process = process, method = "POST"})
@@ -106,21 +115,9 @@ local function static(root, file)
     return allcontent
 end
 
-local file_content_type = {
-    json = "application/json",
-    js = "text/javascript",
-    html = "text/html",
-    css = "text/css",
-    txt = "text/plain",
-    png = "image/png",
-    jpg = "image/jpeg",
-    jpeg = "image/jpeg",
-    mp4 = "video/mp4"
-}
-
 -- 静态文件下载
-function web.static(path, root)
-    web.get(path, function (req, res)
+local function web_static(path, root)
+    web_get(path, function (req, res)
         local file = req.path
         if string.find(file, "%.%s.") then      -- 禁止相对路径
             res.code = 404
@@ -129,33 +126,81 @@ function web.static(path, root)
         end
         res.body = static(root, file)
         local suffix = string.match(file, "%.(%w+)$")
+        local file_content_type = {
+            json = "application/json",
+            js = "text/javascript",
+            html = "text/html",
+            css = "text/css",
+            txt = "text/plain",
+            png = "image/png",
+            jpg = "image/jpeg",
+            jpeg = "image/jpeg",
+            mp4 = "video/mp4"
+        }
         res.headers["Content-Type"] = file_content_type[suffix]
         return true
     end)
 end
+---------------------------
 
 
--- TODO: 增加高级路由支持
-function web.router()
-    -- body
-end
+web_before(".*", function (req, res)
+    res.headers["Access-Control-Allow-Origin"] = "http://localhost:8080"
+    res.headers["Access-Control-Allow-Methods"] = "POST"
+    res.headers["Access-Control-Allow-Headers"] = "Content-Type,XFILENAME,XFILECATEGORY,XFILESIZE"
+    res.headers["Access-Control-Allow-Credentials"] = "true"
+    return true
+end)
 
-local REQ = {
---    ip = "192.168.1.123",
---    url = "/",
---    method = "GET",
---    body = "xx=xxx",
---    headers = {},
---    path = "",
-}
+web_before(".*", function(req, res)
+    logger.debug("before web req %s body %s", tostring(req.url), tostring(req.body))
+    return true
+end)
 
-local RES = {
---     code = 200
---     headers = {},
---     body = "",
---     hostname = "example.com",
-}
+web_use("^/:module/:command$", function (req, res)
+    local module = req.params.module
+    local command = req.params.command
 
+    local REQUEST = modules[module]
+    if not REQUEST or not REQUEST[command] then
+        local result = {code = code.ERROR_NAME_UNFOUND, err = code.ERROR_NAME_UNFOUND_MSG}
+        res:json(result)
+        return true
+    end
+    local msg = req.query
+    if req.method == "POST" then
+        msg = cjson_decode(req.body)
+    end
+    local trace_err = ""
+    local trace = function (e)
+        trace_err = tostring(e) .. debug.traceback()
+    end
+    local ok, res_data = xpcall(REQUEST[command], trace, req, msg)
+    if not ok then
+        logger.error("%s %s %s", req.path, tostring(msg), trace_err)
+        local result = {code = code.ERROR_INTERNAL_SERVER, err = code.ERROR_INTERNAL_SERVER_MSG}
+        res:json(result)
+        return true
+    end
+    res:json(res_data)
+    return true
+end)
+
+web_after(".*", function(req, res)
+    if req.params and req.params.module then
+        logger.debug("after web req %s body %s res body %s", tostring(req.url), tostring(req.body), tostring(res.body))
+    else
+        logger.debug("after web req %s body %s res body %s", tostring(req.url), tostring(req.body), string.len(res.body))
+    end
+    return true
+end)
+
+-- web_static("^/*", "./views/")
+
+---------------------------
+local REQ = {}
+
+local RES = {}
 function RES:json(tbl)
     local ok, body = pcall(cjson_encode, tbl)
     self.headers["Content-Type"] = 'application/json'
@@ -165,6 +210,7 @@ end
 function RES:status(code)
     self.code = code
 end
+
 
 local function process(req, res)
     init_process()                              -- 延后初始化处理器
@@ -194,13 +240,12 @@ local function process(req, res)
     return found or not_found_process(req, res)
 end
 
---处理http请求
-function web.http_request(addr, url, method, headers, path, query, body, fd)
+-- 处理http请求
+local function http_request(addr, url, method, headers, path, query, body, fd)
     local ip, _ = addr:match("([^:]+):?(%d*)$")
     local req = {ip = ip, url = url, method = method, headers = headers, 
             path = path, query = query, body = body, fd = fd, addr = addr}
     local res = {code = 200, body = nil, headers = {}}
-
     setmetatable(req, REQ)
     REQ.__index = REQ
     setmetatable(res, RES)
@@ -209,7 +254,6 @@ function web.http_request(addr, url, method, headers, path, query, body, fd)
     local trace = function (e)
         trace_err = tostring(e) .. debug.traceback()
     end
-
     local ok = xpcall(process, trace, req, res)
     if not ok then
         skynet.error(trace_err)
@@ -222,4 +266,74 @@ function web.http_request(addr, url, method, headers, path, query, body, fd)
     return res.code, res.body, res.headers
 end
 
-return web
+local function response(id, ...)
+    local ok, err = httpd.write_response(sockethelper.writefunc(id), ...)
+    if not ok then
+        -- if err == sockethelper.socket_error , that means socket closed.
+        skynet.error(string.format("fd = %d, %s", id, err))
+    end
+end
+
+
+local SOCKET_NUMBER = 0
+local CMD = {}
+
+function CMD.exit()
+    skynet.fork(function ()
+        while true do
+            skynet.sleep(60 * 100)           -- 60s
+            if SOCKET_NUMBER == 0 then
+                break
+            end
+        end
+        logger.info("after update service exit %08x", skynet.self())
+        skynet.exit()                        -- 没有连接存在了
+    end)
+end
+
+function CMD.info()
+    logger.info("socket connect number %s", SOCKET_NUMBER)
+end
+
+function CMD.socket( fd, addr)
+    SOCKET_NUMBER = SOCKET_NUMBER + 1
+    socket.start(fd)
+    -- limit request body size to 8192 (you can pass nil to unlimit)
+    local code, url, method, header, body = httpd.read_request(sockethelper.readfunc(fd), tonumber(body_size_limit))
+    if code then
+        if code ~= 200 then
+            response(fd, code)
+        else
+            local path, query = urllib.parse(url)
+            local q = {}
+            if query then
+                q = urllib.parse_query(query)
+            end         
+            response(fd, http_request(addr, url, method, header, path, q, body, fd))
+        end
+    else
+        if url == sockethelper.socket_error then
+            skynet.error("socket closed")
+        else
+            skynet.error(url)
+        end
+    end
+    SOCKET_NUMBER = SOCKET_NUMBER - 1
+    socket.close(fd)
+end
+
+skynet.start(function() 
+    skynet.dispatch("lua", function(session, _, command, ...)
+        local f = CMD[command]
+        if not f then
+            if session ~= 0 then
+                skynet.ret(skynet.pack(nil))
+            end
+            return
+        end
+        if session == 0 then
+            return f(...)
+        end
+        skynet.ret(skynet.pack(f(...)))
+    end)
+end)

@@ -33,8 +33,6 @@ if $DAEMON then
 end
 
 debug_mode = true
-backend_http_port = 8103
-backend_ws_port = 9848
 frontend_http_port = 8203
 frontend_ws_port = 9948
 

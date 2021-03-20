@@ -2,7 +2,7 @@ local skynet = require "skynet"
 local sproto = require "sproto"
 local jproto = require "jproto"
 local socketproto = require "socket.proto"
-local code = require "server.config.code"
+local code = require "config.code"
 local logger = log4.get_logger(SERVICE_NAME)
 
 -- local host = sproto.parse(gate_proto.c2s):host "package"

@@ -1,7 +1,7 @@
 local skynet = require "skynet"
 local socketapp = require "socket.app"
 local socketproto = require "server.frontend.socketproto"
-local code = require "server.config.code"
+local code = require "config.code"
 local session_class = require "server.session"
 local logger = log4.get_logger(SERVICE_NAME)
 
