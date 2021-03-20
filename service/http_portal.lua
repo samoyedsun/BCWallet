@@ -17,7 +17,7 @@ function CMD.update()                           -- 热更新
     local new_agent = {}
     update_count = update_count + 1             -- 更新次数
     for i = 1, agent_num do 
-        new_agent[i] = skynet.newservice("http_portal_agent", body_size_limit, "update:"..update_count)
+        new_agent[i] = skynet.newservice("http_portal_agent", body_size_limit, "update:" .. update_count)
     end
     
     agent = new_agent
@@ -36,7 +36,7 @@ end
 skynet.start(function()
     body_size_limit = body_size_limit or 8192   
     for i= 1, agent_num do
-        agent[i] = skynet.newservice("http_portal_agent", body_size_limit,  "update:"..update_count)
+        agent[i] = skynet.newservice("http_portal_agent", body_size_limit,  "update:" .. update_count)
     end
 
     skynet.dispatch("lua", function(session, _, command, ...)

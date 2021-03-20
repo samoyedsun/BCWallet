@@ -2,7 +2,7 @@ local skynet = require "skynet"
 local socket = require "skynet.socket"
 local websocket = require "http.websocket"
 
-local port, wsapp_name, protocol = ...
+local port, protocol = ...
 
 local CMD = {}
 local agent = {}
@@ -16,7 +16,7 @@ function CMD.update()                           -- 热更新
     local new_agent = {}
     update_count = update_count + 1             -- 更新次数
     for i = 1, agent_num do 
-        new_agent[i] = skynet.newservice("srv_websocket_agent", wsapp_name)
+        new_agent[i] = skynet.newservice("ws_portal_agent", "update:" .. update_count)
     end
     
     agent = new_agent
@@ -34,7 +34,7 @@ end
 
 skynet.start(function ()
     for i= 1, agent_num do
-        agent[i] = skynet.newservice("srv_websocket_agent", wsapp_name)
+        agent[i] = skynet.newservice("ws_portal_agent",  "update:" .. update_count)
     end
 
     skynet.dispatch("lua", function(session, _, command, ...)

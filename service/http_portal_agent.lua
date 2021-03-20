@@ -8,7 +8,7 @@ local urllib = require "http.url"
 local logger = log4.get_logger(SERVICE_NAME)
 
 
-body_size_limit = ...
+body_size_limit, update_count = ...
 
 --------------------
 local BEFORE_PROCESS = {}
