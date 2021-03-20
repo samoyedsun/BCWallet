@@ -22,8 +22,25 @@ socketproto.c2s_before(".*", function (self, name, args, res)
 end)
 
 socketproto.c2s_use("^user_*", function (self, name, args, res)
-    -- local user = require "server.frontend.request.socket_user"
+    -- local user = require "frontend.request.socket_user"
     -- table.merge(res, user.request(self, name, args))
+    --[[
+    local msg = args
+    if not REQUEST[name] then
+        return {code = code.ERROR_NAME_UNFOUND, err = code.ERROR_NAME_UNFOUND_MSG}
+    end
+
+    local trace_err = ""
+    local trace = function (e)
+        trace_err = e .. debug.traceback()
+    end
+    local ok, res_data = xpcall(REQUEST[name], trace, self, msg)
+    if not ok then
+        logger.error("%s %s %s", name, tostring(msg), trace_err)
+        return {code = code.ERROR_INTERNAL_SERVER, err = code.ERROR_INTERNAL_SERVER_MSG}
+    end
+    table.merge(res, res_data)
+    --]]
     return true
 end)
 

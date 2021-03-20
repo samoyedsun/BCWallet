@@ -1,5 +1,5 @@
 local db_help = require "db_help"
-local autoincrid_const = require "server.autoincrid.autoincrid_const"
+local autoincrid_const = require "autoincrid.autoincrid_const"
 
 local SERVER_PART_OFFSET = 11
 local serverId

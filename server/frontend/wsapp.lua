@@ -1,8 +1,8 @@
 local skynet = require "skynet"
 local socket = require "skynet.socket"
 local service = require "skynet.service"
-local proto = require "server.frontend.socketproto"
-local app = require "server.frontend.socketapp"
+local proto = require "frontend.socketproto"
+local app = require "frontend.socketapp"
 local websocket = require "http.websocket"
 
 local CMD = {}

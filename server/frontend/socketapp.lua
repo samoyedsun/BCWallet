@@ -1,8 +1,8 @@
 local skynet = require "skynet"
 local socketapp = require "socket.app"
-local socketproto = require "server.frontend.socketproto"
+local socketproto = require "frontend.socketproto"
 local code = require "config.code"
-local session_class = require "server.session"
+local session_class = require "session"
 local logger = log4.get_logger(SERVICE_NAME)
 
 socketapp.use("^c2s$", socketproto.c2s_process)

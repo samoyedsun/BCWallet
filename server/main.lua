@@ -13,6 +13,7 @@ skynet.start(function ()
     skynet.newservice("third_api", 1)
     hotfix.start_hotfix_service("skynet", "http_portal", skynet.getenv("frontend_http_port"), 65536)
     --hotfix.start_hotfix_service("skynet", "ws_portal", skynet.getenv("frontend_ws_port"), "ws")
-    hotfix.start_hotfix_service("skynet", "srv_websocket", skynet.getenv("frontend_ws_port"), "server.frontend.wsapp", "ws")
+    hotfix.start_hotfix_service("skynet", "srv_websocket", skynet.getenv("frontend_ws_port"), "frontend.wsapp", "ws")
+    
     skynet.exit()
 end)
