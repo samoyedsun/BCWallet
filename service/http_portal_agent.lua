@@ -195,7 +195,7 @@ web_after(".*", function(req, res)
     return true
 end)
 
--- web_static("^/*", "./views/")
+web_static("^/*", "./server/views")
 
 ---------------------------
 local REQ = {}

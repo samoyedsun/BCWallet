@@ -1,7 +1,7 @@
 local skynet = require "skynet"
 require "skynet.manager"
 require "skynet.queue"
-local queueEnter = skynet.queue()
+local queue_enter = skynet.queue()
 local LOGGER = {}
 local CMD = {}
 
@@ -40,7 +40,7 @@ function CMD.print(s)
 end
 
 skynet.start(function()
-    skynet.register(".jmlogger")
+    skynet.register("MYLOGGER")
     skynet.dispatch("lua", function(session, _, command, ...)
         local f = CMD[command]
         if not f then
@@ -48,9 +48,9 @@ skynet.start(function()
                 skynet.ret(skynet.pack(nil))
             end
         elseif session == 0 then
-            queueEnter(f, ...)
+            queue_enter(f, ...)
         else
-            skynet.ret(skynet.pack(queueEnter(f, ...)))
+            skynet.ret(skynet.pack(queue_enter(f, ...)))
         end
     end)
 end)

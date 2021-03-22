@@ -34,7 +34,7 @@ function CMD.game( ... )
 end
 
 skynet.start(function ( ... )
-    skynet.call(".mysql", "lua", "init", "game", mysql_conf["game"])
+    skynet.call("MYSQL", "lua", "init", "game", mysql_conf["game"])
     skynet.dispatch("lua", function(session, _, command, ...)
         local f = CMD[command]
         if not f then

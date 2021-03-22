@@ -202,8 +202,13 @@ function token_parse(token, secret)
     return uid, timestamp, password
 end
 
-function time_now_str()
-    return os.date("%Y-%m-%d %H:%M:%S", skynet_time())
+function date_to_timestamp(str_date)
+    local _, _, y, m, d, _hour, _min, _sec = string.find(str_date, "(%d+)-(%d+)-(%d+)%s*(%d+):(%d+):(%d+)");
+    return os.time({year=y, month = m, day = d, hour = _hour, min = _min, sec = _sec});
+end
+
+function timestamp_to_date(timestamp)
+    return os.date("%Y-%m-%d %H:%M:%S", timestamp)
 end
 
 function time_now_utc_str()

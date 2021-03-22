@@ -3,7 +3,7 @@ local autoincrid_const = require "autoincrid.autoincrid_const"
 
 local SERVER_PART_OFFSET = 11
 local serverId
-local get_key_max_id = function(key_name)
+local function get_key_max_id(key_name)
 	local max_id = db_help.call("autoincrid_db.get_max_autoincrid", key_name, SERVER_PART_OFFSET)
 	if max_id then
 		local tmp_max_id = tonumber(max_id)

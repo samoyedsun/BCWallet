@@ -16,7 +16,6 @@ cpath = skynetroot.."cservice/?.so;".. "" ..cloudroot.."cservice/?.so"
 lua_path = skynetroot .. "lualib/?.lua;" ..
             cloudroot .. "server/?.lua;" ..
             cloudroot .. "lualib/?.lua;" ..
-            cloudroot .. "lualib/rpc/?.lua;" .. 
             "./test/?.lua;" ..
             "./lualib/?.lua;" ..
             "./?.lua" 

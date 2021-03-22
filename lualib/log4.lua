@@ -124,10 +124,10 @@ local function get_date_file_appender(cf)
         local date = os.date("%Y-%m-%d", now)
         if log.date ~= date then            -- update date file
             if log.handle and log.handle then
-                skynet.send(".jmlogger", "lua", "close", log.filename)
+                skynet.send("MYLOGGER", "lua", "close", log.filename)
             end
             log.filename = os.date(cf.pattern, now)
-            log.handle = skynet.call(".jmlogger", "lua", "open", log.filename)
+            log.handle = skynet.call("MYLOGGER", "lua", "open", log.filename)
             log.date = date
         end
         if not log.handle then

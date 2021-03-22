@@ -3,7 +3,7 @@
 export ROOT=$(pwd)
 
 export DAEMON=false
-export LOG_PATH='"./run/"'
+export LOG_PATH='"./logs/"'
 export ENV='"dev"'
 while getopts "DKU:l:v:" arg
 do

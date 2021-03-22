@@ -85,6 +85,10 @@
 ```sh
 docker run -it -d -p 27017:27017 -v ${PWD}/data:/root/data -e MONGO_INITDB_ROOT_USERNAME=bcwallet -e MONGO_INITDB_ROOT_PASSWORD=2habYaVFQFKmuji5 --name mongo mongo
 ```
+登陆MONGODB服务
+```sh
+docker exec -it mongo mongo -u bcwallet -p 2habYaVFQFKmuji5
+```
 
 常见问答A&Q：
 - MAC下编译如果遇到的问题:

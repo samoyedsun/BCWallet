@@ -6,8 +6,9 @@ local logger = log4.get_logger(SERVICE_NAME)
 local db
 
 local modules = {}
-modules.user_db             =   require "user.user_db"
 modules.autoincrid_db       =   require "autoincrid.autoincrid_db"
+modules.user_db             =   require "user.user_db"
+modules.lottery_db          =   require "lottery.lottery_db"
 
 local ti = {}
 local function profile_call(func, cmd, ...)
