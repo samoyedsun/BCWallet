@@ -27,7 +27,7 @@ logpath = $LOG_PATH
 env = $ENV or "dev"
 
 if $DAEMON then
-      daemon = "./run/skynet-test.pid"
+      daemon = logpath .. "skynet-test.pid"
       logger = logpath .. "skynet-error.log"
 end
 

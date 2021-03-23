@@ -3,9 +3,20 @@ require "skynet.manager"
 require "skynet.queue"
 local queue_enter = skynet.queue()
 local db_help = require "db_help"
+local lottery_ctrl = require "lottery.lottery_ctrl"
 local logger = log4.get_logger(SERVICE_NAME)
 
+local function check_lottery_history()
+    -- 将漏掉的记录补回来
+    -- 然后再唤醒拉取数据服务
+    skynet.send("THIRD_API", "lua", "start")
+end
+
 local CMD = {}
+
+function CMD.calculate_lottery_results(balls)
+    return lottery_ctrl.calculate_lottery_results(balls)
+end
 
 function CMD.find_lottery_history(id)
     return db_help.call("lottery_db.find_lottery_history", id)
@@ -30,4 +41,6 @@ end)
 
 skynet.start(function()
     skynet.register("LOTTERY")
+
+    check_lottery_history()
 end)

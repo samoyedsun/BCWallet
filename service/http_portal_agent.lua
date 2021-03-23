@@ -2,10 +2,12 @@ local skynet = require "skynet"
 local socket = require "skynet.socket"
 local httpd = require "http.httpd"
 local sockethelper = require "http.sockethelper"
-local code = require "config.code"
-local modules = require "config.modules"
+local error_code_config = require "config.error_code_config"
 local urllib = require "http.url"
 local logger = log4.get_logger(SERVICE_NAME)
+
+local modules = {}
+modules.user                = require "user.user_impl"
 
 
 body_size_limit, update_count = ...
@@ -163,7 +165,7 @@ web_use("^/:module/:command$", function (req, res)
 
     local REQUEST = modules[module]
     if not REQUEST or not REQUEST[command] then
-        local result = {code = code.ERROR_NAME_UNFOUND, err = code.ERROR_NAME_UNFOUND_MSG}
+        local result = {code = error_code_config.ERROR_NAME_UNFOUND.value, err = error_code_config.ERROR_NAME_UNFOUND.desc}
         res:json(result)
         return true
     end
@@ -178,7 +180,7 @@ web_use("^/:module/:command$", function (req, res)
     local ok, res_data = xpcall(REQUEST[command], trace, req, msg)
     if not ok then
         logger.error("%s %s %s", req.path, tostring(msg), trace_err)
-        local result = {code = code.ERROR_INTERNAL_SERVER, err = code.ERROR_INTERNAL_SERVER_MSG}
+        local result = {code = error_code_config.ERROR_INTERNAL_SERVER.value, err = error_code_config.ERROR_INTERNAL_SERVER.desc}
         res:json(result)
         return true
     end

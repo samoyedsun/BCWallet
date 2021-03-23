@@ -17,31 +17,31 @@ local game_api_list = {
             if not result.businessCode or result.businessCode ~= 0 then return end
             local data = result.data
 
-            local param = {
-                game_id = game_id,
-                draw_issue = pre_draw_issue,
-                draw_time = pre_draw_time,
-                draw_code_list = pre_draw_code_list
-            }
-
-            local sealing_time = date_to_timestamp(data.preDrawTime)
-            local sealing_date = timestamp_to_date(sealing_time - 15)
             local db_index = game_id .. "-" .. data.preDrawIssue
             local res = skynet.call("LOTTERY", "lua", "find_lottery_history", db_index)
             if not res then
+                local draw_date = data.preDrawTime
+                local draw_time = date_to_timestamp(draw_date)
+                local sealing_time = draw_time - 15
+                local sealing_date = timestamp_to_date(sealing_time)
+                local draw_balls_str = string.split(data.preDrawCode, ",")
+                local draw_balls = {}
+                for k, v in ipairs(draw_balls_str) do
+                    draw_balls[k] = tonumber(v)
+                end
+                local open_award_opcode = skynet.call("LOTTERY", "lua", "calculate_lottery_results", draw_balls)
+                
                 local param = {
                     _id = db_index,
                     game_id = game_id,
+                    draw_balls = draw_balls,
                     draw_issue = data.preDrawIssue,
                     sealing_date = sealing_date,
-                    draw_date = data.preDrawTime,
-                    boll_1 = data.firstNum,
-                    boll_2 = data.secondNum,
-                    boll_3 = data.thirdNum,
-                    boll_4 = data.fourthNum,
-                    boll_5 = data.fifthNum
+                    sealing_time = sealing_time,
+                    draw_date = draw_date,
+                    draw_time = draw_time,
+                    open_award_opcode = open_award_opcode
                 }
-    
                 local id = skynet.call("LOTTERY", "lua", "push_lottery_info", param)
                 logger.info("记录开奖信息成功! id:%s", id)
             end
@@ -78,9 +78,9 @@ local function process_fetch_data(last_tick_time)
     end
 end
 
-local function onTick()
+local function on_tick()
 	skynet.timeout(100, function()
-        onTick()
+        on_tick()
     end)
 
 	local last_tick_time = skynet.time()
@@ -88,6 +88,10 @@ local function onTick()
 end
 
 local CMD = {}
+
+function CMD.start()
+    on_tick()
+end
 
 skynet.dispatch("lua", function(session, _, command, ...)
     local f = CMD[command]
@@ -104,6 +108,4 @@ end)
 
 skynet.start(function()
     skynet.register("THIRD_API")
-
-    onTick()
 end)

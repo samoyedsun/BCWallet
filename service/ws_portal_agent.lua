@@ -4,7 +4,7 @@ local service = require "skynet.service"
 local websocket = require "http.websocket"
 local sproto = require "sproto"
 local jproto = require "jproto"
-local code = require "config.code"
+local error_code_config = require "config.error_code_config"
 local session_class = require "session"
 local logger = log4.get_logger(SERVICE_NAME)
 
@@ -250,7 +250,7 @@ socketproto.c2s_before(".*", function (self, name, args, res)
         return true
     end
     create_timeout(3 * 100, function(s) self:emit("kick") end)
-    table.merge(res, {code = code.ERROR_USER_UNAUTH, err = code.ERROR_USER_UNAUTH_MSG})
+    table.merge(res, {code = error_code_config.ERROR_USER_UNAUTH.value, err = error_code_config.ERROR_USER_UNAUTH.desc})
     return false
 end)
 
@@ -260,7 +260,7 @@ socketproto.c2s_use("^user_*", function (self, name, args, res)
     --[[
     local msg = args
     if not REQUEST[name] then
-        return {code = code.ERROR_NAME_UNFOUND, err = code.ERROR_NAME_UNFOUND_MSG}
+        return {code = error_code_config.ERROR_NAME_UNFOUND.value, err = error_code_config.ERROR_NAME_UNFOUND.desc}
     end
 
     local trace_err = ""
@@ -270,7 +270,7 @@ socketproto.c2s_use("^user_*", function (self, name, args, res)
     local ok, res_data = xpcall(REQUEST[name], trace, self, msg)
     if not ok then
         logger.error("%s %s %s", name, tostring(msg), trace_err)
-        return {code = code.ERROR_INTERNAL_SERVER, err = code.ERROR_INTERNAL_SERVER_MSG}
+        return {code = error_code_config.ERROR_INTERNAL_SERVER.value, err = error_code_config.ERROR_INTERNAL_SERVER.desc}
     end
     table.merge(res, res_data)
     --]]
@@ -359,7 +359,7 @@ socketapp.use("^error$", function (self, _name, _type, ...)
         logger.error("%s %s %s", _type, self.session:tostring(), tostring({...}))
         local name, args, res, err = ...
         if res and type(res) == "table" then
-            table.merge(res, {code = code.ERROR_INTERNAL_SERVER, err = code.ERROR_INTERNAL_SERVER_MSG})
+            table.merge(res, {code = error_code_config.ERROR_INTERNAL_SERVER.value, err = error_code_config.ERROR_INTERNAL_SERVER.desc})
         end
         return true
     end

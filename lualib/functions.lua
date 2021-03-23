@@ -174,7 +174,6 @@ function per_timer(time, f, ...)
     end
 end
 
-
 --创建token
 function token_create(uid, timestamp, password, secret)
     local s = string.format("%s:%s:%s", uid, timestamp, password)

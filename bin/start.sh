@@ -12,7 +12,7 @@ do
             export DAEMON=true
             ;;
         K)
-            kill `cat $ROOT/run/skynet-test.pid`
+            kill `cat $LOG_PATH"skynet-test.pid"`
             exit 0;
             ;;
         l) 
