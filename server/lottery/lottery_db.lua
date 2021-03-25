@@ -2,12 +2,26 @@ local root = {}
 
 function root.lottery_jsssc_find_history(db, issue)
     local conds = {
-        _id = issue,
-        balls = {
-            ["$exists"] = true
-        }
+        _id = issue
     }
     return db.lottery_jsssc_history:findOne(conds)
+end
+
+
+function root.lottery_jsssc_find_miss_history(db)
+    local conds = {
+        balls = {
+            ["$exists"] = false
+        }
+    }
+    local res = db.lottery_jsssc_history:find(conds)
+    local results = {}
+	while res:hasNext() do
+		local st = res:next()
+		st._id = nil
+		results[st.issue] = st
+	end
+	return results
 end
 
 function root.lottery_jsssc_append_history(db, data)

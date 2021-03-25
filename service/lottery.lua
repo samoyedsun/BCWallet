@@ -34,7 +34,7 @@ local function jsssc_init_open_quotation()
     for idx = 1, one_day_issue do
         insert_issue = insert_issue + 1
 
-        local need_time_span_amount = idx - 1
+        local need_time_span_amount = idx
         local need_time_span = one_issue_time_span * need_time_span_amount
         local opening_time = date_to_timestamp(insert_date) + need_time_span
         
@@ -87,7 +87,7 @@ local function jsssc_exec_open_quotation()
 end
 
 local function on_tick()
-	skynet.timeout(100, function()
+	create_timeout(100, function()
         on_tick()
     end)
 
@@ -104,6 +104,10 @@ end
 
 function CMD.lottery_jsssc_find_history(issue)
     return db_help.call("lottery_db.lottery_jsssc_find_history", issue)
+end
+
+function CMD.lottery_jsssc_find_miss_history()
+    return db_help.call("lottery_db.lottery_jsssc_find_miss_history")
 end
 
 function CMD.lottery_jsssc_update_history(issue, balls, opening_opcode)
@@ -126,7 +130,7 @@ end)
 skynet.start(function()
     skynet.register("LOTTERY")
 
-    skynet.timeout(3 * 100, function()
+    create_timeout(3 * 100, function()
         logger.info("启动 LOTTERY")
         local amount = db_help.call("lottery_db.lottery_jsssc_get_open_quotation_amount")
         if amount == 0 then
