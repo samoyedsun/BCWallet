@@ -38,7 +38,7 @@ function root.register(msg, ip)
 
 	local param = {
 		_id = context.call_s2s("MONGO_DB", "get_autoincrid", "user"),
-		create_time = skynet.time(),
+		create_time = skynet_time(),
 		username = username,
 		password = password,
 		login_ip = ip,

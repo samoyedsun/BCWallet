@@ -117,7 +117,7 @@ end
 
 local lottery_ctrl = {}
 
-function lottery_ctrl.calculate_lottery_results(balls)
+function lottery_ctrl.calculate_lottery_jsssc_results(balls)
     local open_award_opcode = {}
 
     local state = match_state_single_ball_value_play(balls[1])

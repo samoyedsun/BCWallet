@@ -202,12 +202,25 @@ function token_parse(token, secret)
 end
 
 function date_to_timestamp(str_date)
-    local _, _, y, m, d, _hour, _min, _sec = string.find(str_date, "(%d+)-(%d+)-(%d+)%s*(%d+):(%d+):(%d+)");
-    return os.time({year=y, month = m, day = d, hour = _hour, min = _min, sec = _sec});
+    local _, _, y, m, d, _hour, _min, _sec = string.find(str_date, "(%d+)-(%d+)-(%d+)%s*(%d+):(%d+):(%d+)")
+    return os.time({year = y, month = m, day = d, hour = _hour, min = _min, sec = _sec})
+end
+
+function date_since_year_to_day_to_timestamp(str_date)
+    local _, _, y, m, d = string.find(str_date, "(%d+)-(%d+)-(%d+)")
+    return os.time({year = y, month = m, day = d})
 end
 
 function timestamp_to_date(timestamp)
     return os.date("%Y-%m-%d %H:%M:%S", timestamp)
+end
+
+function timestamp_to_date_since_year_to_day(timestamp)
+    return os.date("%Y-%m-%d", timestamp)
+end
+
+function timestamp_to_date_since_hour_to_sec(timestamp)
+    return os.date("%H:%M:%S", timestamp)
 end
 
 function time_now_utc_str()
@@ -216,7 +229,7 @@ function time_now_utc_str()
 	t = string.split(ts, ".")[1]
 	f = string.split(ts, ".")[2]
 	t = os.date("!*t", tonumber(t))
-	t = os.time({year=t.year, month=t.month, day=t.day, hour=t.hour, min=t.min ,sec=t.sec})
+	t = os.time({year = t.year, month = t.month, day = t.day, hour = t.hour, min = t.min ,sec = t.sec})
 	return os.date("%Y-%m-%d", t) .. "T" .. os.date("%H:%M:%S", t) .. "." .. f .. "Z"
 end
 

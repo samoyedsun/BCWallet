@@ -19,29 +19,25 @@
 - log4日志服务功能
 - web服务功能
 - 基于http协议，消息序列化和反序列化基于json的rpc功能
-- mysql和redis代理功能
+- websocket服务
 
 集成库
 ---
 - cjson
 
-目录说明
----
-```txt
-├── bin                     启动脚本
-├── cservice                skynet cservice
-├── doc                     文档
-├── etc                     skynet进程启动配置文件
-├── server                  服务器逻辑代码示例
-├── logs                    日志目录
-├── luaclib                 lua c语言模块
-├── lualib                  lua模块代码
-├── lualib-src              lua c语言模块代码
-├── run                     进程运行时存放文件目录，比如说进程pid
-├── service                 skynet服务目录
-├── service-src             skynet c语言服务代码
-├── skynet                  skynet
-└── test                    测试目录
+- 统计某个人的提交代码
+```bash
+git log --author="oldwang" --pretty=tformat: --numstat | gawk '{ add += $1 ; subs += $2 ; loc += $1 - $2 } END { printf "增加的行数:%s 删除的行数:%s 总行数: %s\n",add,subs,loc }'
+```
+
+- 统计某个人时间范围的提交代码
+```bash
+git log --author="oldwang" --since='2021-03-24' --until='2021-03-25' --pretty=tformat: --numstat | gawk '{ add += $1 ; subs += $2 ; loc += $1 - $2 } END { printf "增加的行数:%s 删除的行数:%s 总行数: %s\n",add,subs,loc }'
+```
+
+- 统计每个人增删行数
+```bash
+git log --format='%aN' | sort -u | while read name; do echo -en "$name\t"; git log --author="$name" --pretty=tformat: --numstat | awk '{ add += $1; subs += $2; loc += $1 - $2 } END{ printf "增加的行数:%s 删除的行数:%s 总行数: %s\n",add,subs,loc }'' -; done
 ```
 
 编译前安装依赖库:

@@ -39,7 +39,7 @@ end
 
 skynet.start(function()
 
-    local begin_time = skynet.time()
+    local begin_time = skynet_time()
 
     -- TODO:
     -- 1.获取目标用户的战斗力
@@ -61,7 +61,7 @@ skynet.start(function()
     end)
     local target_user_nearby_list = get_target_user_nearby_list()
 
-    local end_time = skynet.time()
+    local end_time = skynet_time()
     print("处理耗时:", end_time - begin_time)
     print("------------------\n")
     
