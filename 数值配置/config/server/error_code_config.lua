@@ -1,4 +1,4 @@
--- .//G_公共配置表.xlsx error_code_config
+-- .//g_公共配置表.xlsx error_code_config
 -- key:标识  value:值  desc:描述 
 local error_code_config = {
 	["SUCCEED"] = {
@@ -45,6 +45,11 @@ local error_code_config = {
 		key = [[ERROR_USER_NOT_EXIST]],
 		value = 10102,
 		desc = [[用户不存在,需要先注册!]],
+	},
+	["ERROR_USER_PASSWORD"] = {
+		key = [[ERROR_USER_PASSWORD]],
+		value = 10103,
+		desc = [[用户密码错误!]],
 	},
 }
 
