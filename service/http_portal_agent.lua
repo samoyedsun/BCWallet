@@ -163,13 +163,44 @@ end)
 web_use("^/:module/:command$", function (req, res)
     local module = req.params.module
     local command = req.params.command
-
     local REQUEST = modules[module]
     if not REQUEST or not REQUEST[command] then
         local result = {code = error_code_config.ERROR_NAME_UNFOUND.value, err = error_code_config.ERROR_NAME_UNFOUND.desc}
         res:json(result)
         return true
     end
+
+    -- 登陆成功的访问做安全验证; 以后再看有没有必要分到一个单独的模块
+    if module ~= "user" or command ~= "login" then
+        local cookies = req:get_cookies()
+        local cli_sid = cookies.sid
+        local cli_session, cli_uid = skynet.call("srv_auth", "lua", "get_session_by_sid", cli_sid)
+        if not cli_uid then
+            local result = {code = error_code_config.ERROR_USER_AUTH_FAILED.value, err = error_code_config.ERROR_USER_AUTH_FAILED.desc}
+            res:json(result)
+            return true
+        end
+        local srv_session, srv_uid = skynet.call("srv_auth", "lua", "get_session_by_uid", cli_uid)
+        if not cli_session and not srv_session then
+            local result = {code = error_code_config.ERROR_VERSION_OLDER.value, err = error_code_config.ERROR_VERSION_OLDER.desc}
+            res:json(result)
+            return true
+        end
+        if not cli_session and srv_session then
+            local result = {code = error_code_config.ERROR_USER_LOGIIN_OTHER_DEVICE.value, err = error_code_config.ERROR_USER_LOGIIN_OTHER_DEVICE.desc}
+            res:json(result)
+            return true
+        end
+        local cli_expired = cli_session.expired
+        local now_time = skynet_time()
+        if cli_expired < now_time then
+            local result = {code = error_code_config.ERROR_USER_SESSION_EXPIRED.value, err = error_code_config.ERROR_USER_SESSION_EXPIRED.desc}
+            res:json(result)
+            return true
+        end
+        skynet.send("srv_auth", "lua", "renew_expired", cli_sid, now_time)
+    end
+
     local msg = req.query
     if req.method == "POST" then
         msg = cjson_decode(req.body)
@@ -178,7 +209,7 @@ web_use("^/:module/:command$", function (req, res)
     local trace = function (e)
         trace_err = tostring(e) .. debug.traceback()
     end
-    local ok, res_data = xpcall(REQUEST[command], trace, req, msg)
+    local ok, res_data, extra = xpcall(REQUEST[command], trace, req, msg)
     if not ok then
         logger.error("%s %s %s", req.path, tostring(msg), trace_err)
         local result = {code = error_code_config.ERROR_INTERNAL_SERVER.value, err = error_code_config.ERROR_INTERNAL_SERVER.desc}
@@ -186,6 +217,12 @@ web_use("^/:module/:command$", function (req, res)
         return true
     end
     res:json(res_data)
+
+    -- 登陆成功保存会话到cookie方便下次访问做安全验证
+    if module == "user" and command == "login" then
+        res:set_cookies({sid = extra})
+    end
+
     return true
 end)
 
@@ -202,6 +239,15 @@ web_static("^/*", "./server/views")
 
 ---------------------------
 local REQ = {}
+function REQ:get_cookies()
+    local cookies_tmp = string.split(self.headers.cookie, ";")
+    local cookies = {}
+    for k, v in ipairs(cookies_tmp) do
+        local cookie = string.split(string.trim(v), "=")
+        cookies[cookie[1]] = cookie[2]
+    end
+    return cookies
+end
 
 local RES = {}
 function RES:json(tbl)
@@ -210,10 +256,19 @@ function RES:json(tbl)
     self.body = body
 end
 
+function RES:set_cookies(cookies)
+    local cookie_str = ""
+    local i = 0
+    for k, v in pairs(cookies) do
+        cookie_str = string.format("%s%s%s=%s", cookie_str, i == 0 and "" or ";", k, v)
+        i = i + 1
+    end
+    self.headers["Set-Cookie"] = cookie_str
+end
+
 function RES:status(code)
     self.code = code
 end
-
 
 local function process(req, res)
     init_process()                              -- 延后初始化处理器

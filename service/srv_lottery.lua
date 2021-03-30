@@ -128,6 +128,7 @@ skynet.dispatch("lua", function(session, _, command, ...)
 end)
 
 skynet.start(function()
+    skynet.register(SERVICE_NAME)
     create_timeout(3 * 100, function()
         logger.info("启动 " .. SERVICE_PATH .. SERVICE_NAME)
         

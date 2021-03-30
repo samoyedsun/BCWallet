@@ -40,6 +40,7 @@ function CMD.print(s)
 end
 
 skynet.start(function()
+    skynet.register(SERVICE_NAME)
     skynet.dispatch("lua", function(session, _, command, ...)
         local f = CMD[command]
         if not f then

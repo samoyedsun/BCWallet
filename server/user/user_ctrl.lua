@@ -73,16 +73,12 @@ function root.login(msg)
 		return {code = error_code_config.ERROR_REQUEST_THIRD_PARTY.value, err = error_code_config.ERROR_REQUEST_THIRD_PARTY.desc, data = result}
 	end
 	--]]
-	
+	local uid = result.uid
+	local password = result.password
 	local login_time = skynet_time()
-	local sid =  skynet.call("srv_auth", "lua", "create_sid", result.uid, login_time)
-	local sid = session_help.create_sid(result.uid, login_time)
-	--print("SID:", sid)
-	--session_help.set_session({
-	-- 	uid = result.uid
-	--})
+	local sid = skynet.call("srv_auth", "lua", "set_session", uid, login_time, password)
 
-    return {code = error_code_config.SUCCEED.value, err = error_code_config.SUCCEED.desc, data = result}
+    return {code = error_code_config.SUCCEED.value, err = error_code_config.SUCCEED.desc}, sid
 end
 
 return root

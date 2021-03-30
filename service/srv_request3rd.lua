@@ -41,7 +41,7 @@ local game_api_list = {
                 local opening_opcode = skynet.call("srv_lottery", "lua", "calculate_lottery_jsssc_results", balls)
                 skynet.call("srv_lottery", "lua", "lottery_jsssc_update_history", issue, balls, opening_opcode)
                 logger.info("记录开奖信息成功! game_name:%s issue:%s", game_name, issue)
-                print("==================")
+                
                 if opening_date ~= result.opening_date or sealing_date ~= result.sealing_date then
                     logger.error("记录开奖信息错误! game_name:%s, issue:%s, error_info:%s", game_name, issue, cjson_encode({
                         opening_date = result.opening_date,
@@ -195,6 +195,7 @@ skynet.dispatch("lua", function(session, _, command, ...)
 end)
 
 skynet.start(function()
+    skynet.register(SERVICE_NAME)
     create_timeout(3 * 100, function()
         logger.info("启动 " .. SERVICE_PATH .. SERVICE_NAME)
         

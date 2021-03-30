@@ -34,6 +34,7 @@ function CMD.exit()
 end
 
 skynet.start(function()
+    skynet.register(SERVICE_NAME)
     body_size_limit = body_size_limit or 8192   
     for i= 1, agent_num do
         agent[i] = skynet.newservice("http_portal_agent", body_size_limit,  "update:" .. update_count)

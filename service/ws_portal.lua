@@ -1,6 +1,7 @@
 local skynet = require "skynet"
 local socket = require "skynet.socket"
 local websocket = require "http.websocket"
+require "skynet.manager"
 
 local port, protocol = ...
 
@@ -33,6 +34,7 @@ function CMD.exit()
 end
 
 skynet.start(function ()
+    skynet.register(SERVICE_NAME)
     for i= 1, agent_num do
         agent[i] = skynet.newservice("ws_portal_agent",  "update:" .. update_count)
     end

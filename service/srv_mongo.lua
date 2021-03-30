@@ -43,6 +43,7 @@ end
 skynet.dispatch("lua", lua.dispatch)
 
 skynet.start(function()
+    skynet.register(SERVICE_NAME)
 	init_svc_pool()
     create_timeout(1, function() autoincrid_ctrl.init_autoincrid() end)
 end)

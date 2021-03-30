@@ -1,6 +1,7 @@
 local codecache = require "skynet.codecache"
 local skynet = require "skynet"
 local snax = require "skynet.snax"
+require "skynet.manager"
 local mode = ...
 
 local reboot_service = {}            -- 可重启更新service, {type, handle, service_name, register, {...}}
@@ -90,6 +91,7 @@ end
 
 if mode == "master" then
     skynet.start(function ()
+        skynet.register(SERVICE_NAME)
         skynet.dispatch("lua", function(session, _, command, ...)
             local f = CMD[command]
             if not f then
