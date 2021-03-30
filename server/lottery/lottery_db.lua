@@ -43,7 +43,7 @@ end
 
 function root.lottery_jsssc_update_open_quotation(db, issue, lock)
     local conds = {
-        _id = issue
+        issue = issue
     }
     local data = {
         ["$set"] = {
@@ -91,6 +91,10 @@ function root.lottery_jsssc_delete_open_quotation_expire(db, curr_date)
         }
     }
     db.lottery_jsssc_open_quotation:delete(conds)
+end
+
+function root.lottery_append_betting_record(db, data)
+    db.lottery_betting_record:safe_insert(data)
 end
 
 return root

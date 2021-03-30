@@ -109,8 +109,6 @@ local function make_fetching_newest_data()
             end
         end
     end
-    local function ready_request(info)
-    end
     local process_time = 0
     return function(last_tick_time)
         if (last_tick_time - process_time) < 3 then return end
@@ -155,10 +153,9 @@ local function make_filling_miss_data()
         
         for k, v in ipairs(game_api_list) do
             skynet.fork(function(info)
-                local results = skynet.call("LOTTERY", "lua", "lottery_jsssc_find_miss_history", issue)
+                local results = skynet.call("LOTTERY", "lua", "lottery_jsssc_find_miss_history")
                 local filter_date_map = {}
                 for _, v in pairs(results) do
-                    local issue = math.floor(v.issue)
                     local opening_time = date_to_timestamp(v.opening_date)
                     local opening_date_since_year_to_day = timestamp_to_date_since_year_to_day(opening_time)
                     if not filter_date_map[opening_date_since_year_to_day] then

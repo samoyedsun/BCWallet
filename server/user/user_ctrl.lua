@@ -34,7 +34,7 @@ function root.register(msg, ip)
 	--]]
 
 	local uid = context.call_s2s("MONGO_DB", "get_autoincrid", "user")
-	local param = {
+	local data = {
 		_id = uid,
 		uid = uid,
 		create_time = skynet_time(),
@@ -45,7 +45,7 @@ function root.register(msg, ip)
 		gender = 1
 	}
 
-	local user_id = db_help.call("user_db.create_user", param)
+	local user_id = db_help.call("user_db.create_user", data)
 
 	local data = {uid = uid}
     return {code = error_code_config.SUCCEED.value, err = error_code_config.SUCCEED.desc, data = data}

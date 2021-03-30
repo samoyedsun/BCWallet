@@ -7,7 +7,8 @@ local urllib = require "http.url"
 local logger = log4.get_logger(SERVICE_NAME)
 
 local modules = {}
-modules.user                = require "user.user_impl"
+modules.user        = require "user.user_impl"
+modules.lottery     = require "lottery.lottery_impl"
 
 
 body_size_limit, update_count = ...

@@ -1,4 +1,3 @@
-local error_code_config = require "config.error_code_config"
 local user_ctrl = require "user.user_ctrl"
 
 local root = {}

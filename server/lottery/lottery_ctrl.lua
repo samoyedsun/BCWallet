@@ -1,3 +1,4 @@
+local db_help = require "db_help"
 local lottery_const = require "lottery.lottery_const"
 
 local function match_state_single_ball_value_play(ball)
@@ -115,9 +116,9 @@ local function match_state_dragon_tiger_tie_play(balls)
     end
 end
 
-local lottery_ctrl = {}
+local root = {}
 
-function lottery_ctrl.calculate_lottery_jsssc_results(balls)
+function root.calculate_lottery_jsssc_results(balls)
     local open_award_opcode = {}
 
     local state = match_state_single_ball_value_play(balls[1])
@@ -174,4 +175,26 @@ function lottery_ctrl.calculate_lottery_jsssc_results(balls)
     return open_award_opcode
 end
 
-return lottery_ctrl
+function root.betting(msg)
+	if type(msg) ~= "table" or
+        type(msg.game_type) ~= "string" or
+		type(msg.module) ~= "string" or
+		type(msg.slot) ~= "string" or
+		type(msg.amount) ~= "number" then
+		return {code = error_code_config.ERROR_CLIENT_PARAMETER_TYPE.value, err = error_code_config.ERROR_CLIENT_PARAMETER_TYPE.desc}
+	end
+    -- 下注时间,用户ID,开盘期数,游戏类型,模块,位置,下注金额,结算金额
+    local data = {
+        
+    }
+    db_help.call("lottery_db.lottery_append_betting_record", data)
+
+end
+
+function root.clear()
+end
+
+function root.detail()
+end
+
+return root
