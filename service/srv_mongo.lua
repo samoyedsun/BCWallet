@@ -8,7 +8,7 @@ local index = 1
 
 local function init_svc_pool()
 	for i = 1, DB_SVC_COUNT do
-		svcs[#svcs + 1] = skynet.newservice("mongo_svc")
+		svcs[#svcs + 1] = skynet.newservice("srv_mongo_agent", i)
 	end
 end
 
@@ -44,6 +44,5 @@ skynet.dispatch("lua", lua.dispatch)
 
 skynet.start(function()
 	init_svc_pool()
-	skynet.register("MONGO_DB")
     create_timeout(1, function() autoincrid_ctrl.init_autoincrid() end)
 end)

@@ -27,7 +27,7 @@ local game_api_list = {
             local data = result.data
 
             local issue = tonumber(data.preDrawIssue)
-            local result = skynet.call("LOTTERY", "lua", "lottery_jsssc_find_history", issue)
+            local result = skynet.call("srv_lottery", "lua", "lottery_jsssc_find_history", issue)
             if result and not result.balls then
                 local opening_date = data.preDrawTime
                 local opening_time = date_to_timestamp(opening_date)
@@ -38,10 +38,10 @@ local game_api_list = {
                 for k, v in ipairs(balls_str) do
                     balls[k] = tonumber(v)
                 end
-                local opening_opcode = skynet.call("LOTTERY", "lua", "calculate_lottery_jsssc_results", balls)
-                skynet.call("LOTTERY", "lua", "lottery_jsssc_update_history", issue, balls, opening_opcode)
+                local opening_opcode = skynet.call("srv_lottery", "lua", "calculate_lottery_jsssc_results", balls)
+                skynet.call("srv_lottery", "lua", "lottery_jsssc_update_history", issue, balls, opening_opcode)
                 logger.info("记录开奖信息成功! game_name:%s issue:%s", game_name, issue)
-                
+                print("==================")
                 if opening_date ~= result.opening_date or sealing_date ~= result.sealing_date then
                     logger.error("记录开奖信息错误! game_name:%s, issue:%s, error_info:%s", game_name, issue, cjson_encode({
                         opening_date = result.opening_date,
@@ -59,7 +59,7 @@ local game_api_list = {
             local data_list = result.data
             for k, data in ipairs(data_list) do
                 local issue = tonumber(data.preDrawIssue)
-                local result = skynet.call("LOTTERY", "lua", "lottery_jsssc_find_history", issue)
+                local result = skynet.call("srv_lottery", "lua", "lottery_jsssc_find_history", issue)
                 if result and not result.balls then
                     local opening_date = data.preDrawTime
                     local opening_time = date_to_timestamp(opening_date)
@@ -70,8 +70,8 @@ local game_api_list = {
                     for k, v in ipairs(balls_str) do
                         balls[k] = tonumber(v)
                     end
-                    local opening_opcode = skynet.call("LOTTERY", "lua", "calculate_lottery_jsssc_results", balls)
-                    skynet.call("LOTTERY", "lua", "lottery_jsssc_update_history", issue, balls, opening_opcode)
+                    local opening_opcode = skynet.call("srv_lottery", "lua", "calculate_lottery_jsssc_results", balls)
+                    skynet.call("srv_lottery", "lua", "lottery_jsssc_update_history", issue, balls, opening_opcode)
                     logger.info("漏补开奖信息成功! game_name:%s issue:%s", game_name, issue)
                     
                     if opening_date ~= result.opening_date or sealing_date ~= result.sealing_date then
@@ -153,7 +153,7 @@ local function make_filling_miss_data()
         
         for k, v in ipairs(game_api_list) do
             skynet.fork(function(info)
-                local results = skynet.call("LOTTERY", "lua", "lottery_jsssc_find_miss_history")
+                local results = skynet.call("srv_lottery", "lua", "lottery_jsssc_find_miss_history")
                 local filter_date_map = {}
                 for _, v in pairs(results) do
                     local opening_time = date_to_timestamp(v.opening_date)
@@ -195,11 +195,9 @@ skynet.dispatch("lua", function(session, _, command, ...)
 end)
 
 skynet.start(function()
-    skynet.register("REQUEST3RD")
-
     create_timeout(3 * 100, function()
-        logger.info("启动 REQUEST3RD")
-
+        logger.info("启动 " .. SERVICE_PATH .. SERVICE_NAME)
+        
         local fetch_newest_data = make_fetching_newest_data()
         local fill_miss_data = make_filling_miss_data()
         on_tick({fetch_newest_data, fill_miss_data}) 

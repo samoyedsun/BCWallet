@@ -271,3 +271,24 @@ function is_include_version(version, include_version, not_include_version)
     end
     return false
 end
+
+function random_string(len)
+    local random_modes = {
+        [1] = function()
+            return string.char(math.real_random(65, 90))
+        end,
+        [2] = function()
+            return string.char(math.real_random(97,122))
+        end,
+        [3] = function()
+            return string.char(math.real_random(48, 57))
+        end
+    }
+    local random_str = ""
+    for i = 1, len do
+        local index = math.real_random(1, #random_modes)
+        local character = random_modes[index]()
+        random_str = random_str .. character
+    end
+    return random_str
+end

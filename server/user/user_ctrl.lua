@@ -1,5 +1,4 @@
 local skynet = require "skynet"
-local context = require "context"
 local db_help = require "db_help"
 local error_code_config = require "config.error_code_config"
 local wallet_usdt = require "wallet_usdt"
@@ -33,19 +32,19 @@ function root.register(msg, ip)
 	local wallet_address = result
 	--]]
 
-	local uid = context.call_s2s("MONGO_DB", "get_autoincrid", "user")
+	local create_time = skynet_time()
+	local uid = skynet.call("srv_mongo", "lua", "get_autoincrid", "user")
 	local data = {
 		_id = uid,
 		uid = uid,
-		create_time = skynet_time(),
+		create_time = create_time,
 		username = username,
 		password = password,
 		login_ip = ip,
 		avatar = 1,
 		gender = 1
 	}
-
-	local user_id = db_help.call("user_db.create_user", data)
+	local uid = db_help.call("user_db.create_user", data)
 
 	local data = {uid = uid}
     return {code = error_code_config.SUCCEED.value, err = error_code_config.SUCCEED.desc, data = data}
@@ -74,6 +73,14 @@ function root.login(msg)
 		return {code = error_code_config.ERROR_REQUEST_THIRD_PARTY.value, err = error_code_config.ERROR_REQUEST_THIRD_PARTY.desc, data = result}
 	end
 	--]]
+	
+	local login_time = skynet_time()
+	local sid =  skynet.call("srv_auth", "lua", "create_sid", result.uid, login_time)
+	local sid = session_help.create_sid(result.uid, login_time)
+	--print("SID:", sid)
+	--session_help.set_session({
+	-- 	uid = result.uid
+	--})
 
     return {code = error_code_config.SUCCEED.value, err = error_code_config.SUCCEED.desc, data = result}
 end

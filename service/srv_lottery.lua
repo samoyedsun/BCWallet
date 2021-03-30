@@ -128,10 +128,9 @@ skynet.dispatch("lua", function(session, _, command, ...)
 end)
 
 skynet.start(function()
-    skynet.register("LOTTERY")
-
     create_timeout(3 * 100, function()
-        logger.info("启动 LOTTERY")
+        logger.info("启动 " .. SERVICE_PATH .. SERVICE_NAME)
+        
         local amount = db_help.call("lottery_db.lottery_jsssc_get_open_quotation_amount")
         if amount == 0 then
             jsssc_init_open_quotation()

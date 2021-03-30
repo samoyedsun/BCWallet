@@ -6,7 +6,7 @@ local db_svc
 
 local function get_db_svc()
     if not db_svc then
-        db_svc = skynet.call("MONGO_DB", "lua", "get_svc")
+        db_svc = skynet.call("srv_mongo", "lua", "get_svc")
     end
     return db_svc
 end

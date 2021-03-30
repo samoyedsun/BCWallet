@@ -40,7 +40,6 @@ function CMD.print(s)
 end
 
 skynet.start(function()
-    skynet.register("MYLOGGER")
     skynet.dispatch("lua", function(session, _, command, ...)
         local f = CMD[command]
         if not f then

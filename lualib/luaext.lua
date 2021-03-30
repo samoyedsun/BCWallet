@@ -310,6 +310,10 @@ math.round = function(n, p)
         return math.floor(n * e + 0.5) / e
 end
 
+math.real_random = function(n, m)
+    math.randomseed(math.floor(os.clock()*math.random(1000000,90000000)+math.random(1000000,90000000)))
+    return math.random(n, m)
+end
 
 -- lua面向对象扩展
 function class(classname, super)
