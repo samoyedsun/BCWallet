@@ -53,6 +53,13 @@ function root.lottery_jsssc_update_open_quotation(db, issue, lock)
     db.lottery_jsssc_open_quotation:update(conds, data)
 end
 
+function root.lottery_jsssc_get_open_quotation_by_lock(db, lock)
+    local conds = {
+        lock = lock
+    }
+    return db.lottery_jsssc_open_quotation:findOne(conds)
+end
+
 function root.lottery_jsssc_get_open_quotation_first(db)
     local res = db.lottery_jsssc_open_quotation:find({}):sort({sealing_date = 1}):limit(1) or {}
     while res:hasNext() do

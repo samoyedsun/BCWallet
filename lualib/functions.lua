@@ -47,10 +47,6 @@ function cjson_default_parse_by_array_mode(tab)
     })
 end
 
-function skynet_time()
-	return math.ceil(skynet.time())
-end
-
 function addslashes(str)
     return string.gsub(str, ".", function (c)
         if c == "\\" then
@@ -58,29 +54,6 @@ function addslashes(str)
         end
         return c
     end)
-end
-
---创建定时器
-function create_timeout(ti, func, ...)
-    local active = true
-    local args = {...}
-    skynet.timeout(ti, function () 
-        if active then
-            active = false
-            func(table.unpack(args))
-        end
-    end)
-    local timer = {}
-
-    timer.is_timeout = function ()
-    	return not active
-    end
-    timer.delete = function () 
-    	local is_active = active
-    	active = false
-    	return is_active
-	end
-    return timer
 end
 
 --根据权重筛选
@@ -231,6 +204,38 @@ function time_now_utc_str()
 	t = os.date("!*t", tonumber(t))
 	t = os.time({year = t.year, month = t.month, day = t.day, hour = t.hour, min = t.min ,sec = t.sec})
 	return os.date("%Y-%m-%d", t) .. "T" .. os.date("%H:%M:%S", t) .. "." .. f .. "Z"
+end
+
+
+function skynet_time()
+	return math.ceil(skynet.time())
+end
+
+function skynet_date()
+	return timestamp_to_date(skynet_time())
+end
+
+--创建定时器
+function create_timeout(ti, func, ...)
+    local active = true
+    local args = {...}
+    skynet.timeout(ti, function ()
+        if active then
+            active = false
+            func(table.unpack(args))
+        end
+    end)
+    local timer = {}
+
+    timer.is_timeout = function ()
+        return not active
+    end
+    timer.delete = function ()
+        local is_active = active
+        active = false
+        return is_active
+    end
+    return timer
 end
 
 function is_robot(uid)

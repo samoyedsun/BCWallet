@@ -169,11 +169,20 @@ web_use("^/:module/:command$", function (req, res)
         res:json(result)
         return true
     end
-
+    if req.method ~= "POST" then
+        local result = {code = error_code_config.ERROR_INVALID_OPERATION.value, err = error_code_config.ERROR_INVALID_OPERATION.desc}
+        res:json(result)
+        return true
+    end
     -- 登陆成功的访问做安全验证; 以后再看有没有必要分到一个单独的模块
     if module ~= "user" or command ~= "login" then
         local cookies = req:get_cookies()
         local cli_sid = cookies.sid
+        if not cli_sid then
+            local result = {code = error_code_config.ERROR_USER_NEED_TO_LOGIN.value, err = error_code_config.ERROR_USER_NEED_TO_LOGIN.desc}
+            res:json(result)
+            return true
+        end
         local cli_session, cli_uid = skynet.call("srv_auth", "lua", "get_session_by_sid", cli_sid)
         if not cli_uid then
             local result = {code = error_code_config.ERROR_USER_AUTH_FAILED.value, err = error_code_config.ERROR_USER_AUTH_FAILED.desc}
@@ -199,12 +208,11 @@ web_use("^/:module/:command$", function (req, res)
             return true
         end
         skynet.send("srv_auth", "lua", "renew_expired", cli_sid, now_time)
+        req.uid = cli_uid
     end
-
     local msg = req.query
-    if req.method == "POST" then
-        msg = cjson_decode(req.body)
-    end
+    msg = cjson_decode(req.body)
+
     local trace_err = ""
     local trace = function (e)
         trace_err = tostring(e) .. debug.traceback()
@@ -220,9 +228,9 @@ web_use("^/:module/:command$", function (req, res)
 
     -- 登陆成功保存会话到cookie方便下次访问做安全验证
     if module == "user" and command == "login" then
-        res:set_cookies({sid = extra})
+        res:set_cookies({sid = extra, Path = "/"})
     end
-
+    
     return true
 end)
 

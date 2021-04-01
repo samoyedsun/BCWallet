@@ -36,6 +36,11 @@ local error_code_config = {
 		value = 10006,
 		desc = [[版本更新，请重新登陆！]],
 	},
+	["ERROR_INVALID_OPERATION"] = {
+		key = [[ERROR_INVALID_OPERATION]],
+		value = 10007,
+		desc = [[非法操作!]],
+	},
 	["ERROR_USER_UNAUTH"] = {
 		key = [[ERROR_USER_UNAUTH]],
 		value = 10100,
@@ -70,6 +75,16 @@ local error_code_config = {
 		key = [[ERROR_USER_SESSION_EXPIRED]],
 		value = 10106,
 		desc = [[会话过期，验证失败！]],
+	},
+	["ERROR_USER_NEED_TO_LOGIN"] = {
+		key = [[ERROR_USER_NEED_TO_LOGIN]],
+		value = 10107,
+		desc = [[您未登陆，需先登陆!]],
+	},
+	["ERROR_SEALING_CAN_NOT_BETTING"] = {
+		key = [[ERROR_SEALING_CAN_NOT_BETTING]],
+		value = 10200,
+		desc = [[封盘期间不可下注!]],
 	},
 }
 

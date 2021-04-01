@@ -32,12 +32,12 @@ function root.register(msg, ip)
 	local wallet_address = result
 	--]]
 
-	local create_time = skynet_time()
+	local create_date = skynet_date()
 	local uid = skynet.call("srv_mongo", "lua", "get_autoincrid", "user")
 	local data = {
 		_id = uid,
 		uid = uid,
-		create_time = create_time,
+		create_date = create_date,
 		username = username,
 		password = password,
 		login_ip = ip,

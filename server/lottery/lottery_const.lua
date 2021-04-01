@@ -1,8 +1,14 @@
 local lottery_const = {
     GAME_JSSSC_BETTING = {},        -- 极速时时彩投注
-    GAME_JSSSC_ODDS = {}            -- 极速时时彩赔率
+    GAME_JSSSC_ODDS = {},           -- 极速时时彩赔率
+    GAME_JSSSC_ONE_ISSUE_TIME_SPAN = 75,
+    GAME_JSSSC_OPENING_TIME_SPAN = 60,
+    GAME_JSSSC_SEALING_TIME_SPAN = 15,
+    LOCK_STATE = {
+        NO = "NO",
+        YES = "YES"
+    }
 }
-
 
 -- ========================================极速时时彩========================================
 lottery_const.GAME_JSSSC_BETTING.BETTING_MODULE = {

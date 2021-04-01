@@ -7,7 +7,7 @@ local logger = log4.get_logger(SERVICE_NAME)
 local game_api_list = {
     {
         game_id = 1,
-        game_name = "lottery_jsssc",
+        game_type = "lottery_jsssc",
         suspension_begin = "0400",
         suspension_end = "0730",
         issue_request = {
@@ -20,7 +20,7 @@ local game_api_list = {
             url = '/CQShiCai/getBaseCQShiCaiList.do',
             param = { lotCode='10036' }
         },
-        issue_request_process = function(res, game_id, game_name)
+        issue_request_process = function(res, game_id, game_type)
             if not res.errorCode or res.errorCode ~= 0 then return end
             local result = res.result
             if not result.businessCode or result.businessCode ~= 0 then return end
@@ -40,10 +40,10 @@ local game_api_list = {
                 end
                 local opening_opcode = skynet.call("srv_lottery", "lua", "calculate_lottery_jsssc_results", balls)
                 skynet.call("srv_lottery", "lua", "lottery_jsssc_update_history", issue, balls, opening_opcode)
-                logger.info("记录开奖信息成功! game_name:%s issue:%s", game_name, issue)
+                logger.info("记录开奖信息成功! game_type:%s issue:%s", game_type, issue)
                 
                 if opening_date ~= result.opening_date or sealing_date ~= result.sealing_date then
-                    logger.error("记录开奖信息错误! game_name:%s, issue:%s, error_info:%s", game_name, issue, cjson_encode({
+                    logger.error("记录开奖信息错误! game_type:%s, issue:%s, error_info:%s", game_type, issue, cjson_encode({
                         opening_date = result.opening_date,
                         sealing_date = result.sealing_date,
                         fresh_opening_date = opening_date,
@@ -52,7 +52,7 @@ local game_api_list = {
                 end
             end
         end,
-        miss_issue_request_process = function(res, game_id, game_name)
+        miss_issue_request_process = function(res, game_id, game_type)
             if not res.errorCode or res.errorCode ~= 0 then return end
             local result = res.result
             if not result.businessCode or result.businessCode ~= 0 then return end
@@ -72,10 +72,10 @@ local game_api_list = {
                     end
                     local opening_opcode = skynet.call("srv_lottery", "lua", "calculate_lottery_jsssc_results", balls)
                     skynet.call("srv_lottery", "lua", "lottery_jsssc_update_history", issue, balls, opening_opcode)
-                    logger.info("漏补开奖信息成功! game_name:%s issue:%s", game_name, issue)
+                    logger.info("漏补开奖信息成功! game_type:%s issue:%s", game_type, issue)
                     
                     if opening_date ~= result.opening_date or sealing_date ~= result.sealing_date then
-                        logger.error("漏补开奖信息错误! game_name:%s, issue:%s, error_info:%s", game_name, issue, cjson_encode({
+                        logger.error("漏补开奖信息错误! game_type:%s, issue:%s, error_info:%s", game_type, issue, cjson_encode({
                             opening_date = result.opening_date,
                             sealing_date = result.sealing_date,
                             fresh_opening_date = opening_date,
@@ -103,7 +103,7 @@ local function make_fetching_newest_data()
             logger.error("fetching_newest_data error 1, game_id:%s, trace_err:%s", info.game_id, trace_err)
         else
             if type(res) == "table" then
-                info.issue_request_process(res, info.game_id, info.game_name)
+                info.issue_request_process(res, info.game_id, info.game_type)
             else
                 logger.error("fetching_newest_data error 2, game_id:%s, res:%s", info.game_id, res)
             end
@@ -140,7 +140,7 @@ local function make_filling_miss_data()
             logger.error("filling_miss_data error 1, game_id:%s, trace_err:%s", info.game_id, trace_err)
         else
             if type(res) == "table" then
-                info.miss_issue_request_process(res, info.game_id, info.game_name)
+                info.miss_issue_request_process(res, info.game_id, info.game_type)
             else
                 logger.error("filling_miss_data error 2, game_id:%s, res:%s", info.game_id, res)
             end

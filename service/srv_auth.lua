@@ -42,6 +42,7 @@ function CMD.get_session_by_sid(sid)
     end
     local ok, uid, timestamp, password = xpcall(token_parse, trace, sid, SECRET_8BIT)
     if ok then
+        uid = tonumber(uid)
         return sid_to_session[sid], uid, timestamp, password
     end
     skynet.error("sid:%s, trace_err:%s", sid, trace_err)

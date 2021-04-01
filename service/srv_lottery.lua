@@ -3,18 +3,13 @@ require "skynet.manager"
 require "skynet.queue"
 local queue_enter = skynet.queue()
 local db_help = require "db_help"
+local lottery_const = require "lottery.lottery_const"
 local lottery_ctrl = require "lottery.lottery_ctrl"
 local logger = log4.get_logger(SERVICE_NAME)
-
-local LOCK_STATE = {
-    NO = "NO",
-    YES = "YES"
-}
 
 local function jsssc_init_open_quotation()
     local one_day_sec = 86400
     local one_day_issue = 1152
-    local one_issue_time_span = 75
 
     local base_issue = 11757921
     local base_date = "2021-01-30 06:00:30"
@@ -35,7 +30,7 @@ local function jsssc_init_open_quotation()
         insert_issue = insert_issue + 1
 
         local need_time_span_amount = idx
-        local need_time_span = one_issue_time_span * need_time_span_amount
+        local need_time_span = lottery_const.GAME_JSSSC_ONE_ISSUE_TIME_SPAN * need_time_span_amount
         local opening_time = date_to_timestamp(insert_date) + need_time_span
         
         local opening_date = timestamp_to_date(opening_time)
@@ -45,7 +40,7 @@ local function jsssc_init_open_quotation()
             issue = insert_issue,
             opening_date = opening_date,
             sealing_date = sealing_date,
-            lock = (idx == 1 and {LOCK_STATE.YES} or {LOCK_STATE.NO})[1]
+            lock = (idx == 1 and {lottery_const.LOCK_STATE.YES} or {lottery_const.LOCK_STATE.NO})[1]
         })
     end
 
@@ -72,13 +67,13 @@ local function jsssc_exec_open_quotation()
         end
     end
     if not table.empty(results) then
-        logger.info("到期封盘! game_name:%s issue:%s", "lottery_jsssc", curr_date)
+        logger.info("到期封盘! game_type:%s issue:%s", "lottery_jsssc", curr_date)
         db_help.call("lottery_db.lottery_jsssc_delete_open_quotation_expire", curr_date)
 
         local result = db_help.call("lottery_db.lottery_jsssc_get_open_quotation_first")
         if result then
             local issue = result.issue
-            local lock = LOCK_STATE.YES
+            local lock = lottery_const.LOCK_STATE.YES
             db_help.call("lottery_db.lottery_jsssc_update_open_quotation", issue, lock)
         else
             jsssc_init_open_quotation()

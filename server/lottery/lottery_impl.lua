@@ -3,7 +3,7 @@ local lottery_ctrl = require "lottery.lottery_ctrl"
 local root = {}
 
 function root:betting(msg)
-    return lottery_ctrl.betting(msg, self.ip)
+    return lottery_ctrl.betting(msg, self.uid)
 end
 
 function root:clear(msg)
