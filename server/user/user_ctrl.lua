@@ -74,11 +74,10 @@ function root.login(msg)
 	end
 	--]]
 	local uid = result.uid
-	local password = result.password
-	local login_time = skynet_time()
-	local sid = skynet.call("srv_auth", "lua", "set_session", uid, login_time, password)
-
-    return {code = error_code_config.SUCCEED.value, err = error_code_config.SUCCEED.desc}, sid
+	local now_time = skynet_time()
+	local sid, expired = skynet.call("srv_auth", "lua", "set_session", uid, now_time)
+	local extra = {sid = sid, uid = uid, expires = expired}
+    return {code = error_code_config.SUCCEED.value, err = error_code_config.SUCCEED.desc}, extra
 end
 
 return root

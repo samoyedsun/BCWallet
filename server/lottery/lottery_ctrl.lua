@@ -117,6 +117,17 @@ local function match_state_dragon_tiger_tie_play(balls)
     end
 end
 
+local function get_lottery_betting_record_list(data)
+    local results = db_help.call("lottery_db.lottery_find_betting_record", data)
+    local kind_slot_to_amount = {}
+    for k, v in ipairs(results) do
+        local key = v.kind .. "-" .. v.slot
+        local amount = kind_slot_to_amount[key] or 0
+        kind_slot_to_amount[key] = amount + v.amount
+    end
+    return kind_slot_to_amount
+end
+
 local root = {}
 
 function root.calculate_lottery_jsssc_results(balls)
@@ -185,31 +196,39 @@ function root.betting(msg, uid)
 		return {code = error_code_config.ERROR_CLIENT_PARAMETER_TYPE.value, err = error_code_config.ERROR_CLIENT_PARAMETER_TYPE.desc}
 	end
     
-    local now_time = skynet_time()
-    local lock = lottery_const.LOCK_STATE.YES
     -- 这里需要再加个条件，就是通过游戏类型查询
+    local lock = lottery_const.LOCK_STATE.YES
     local open_quotation = db_help.call("lottery_db.lottery_jsssc_get_open_quotation_by_lock", lock)
     local sealing_time = date_to_timestamp(open_quotation.sealing_date)
     local beginning_time = sealing_time - lottery_const.GAME_JSSSC_OPENING_TIME_SPAN
+    local now_time = skynet_time()
     if not open_quotation or beginning_time > now_time then
         return {code = error_code_config.ERROR_SEALING_CAN_NOT_BETTING.value, err = error_code_config.ERROR_SEALING_CAN_NOT_BETTING.desc}
     end
+
     local game_type = msg.game_type
-    local kind = msg.kind
-    local slot = msg.slot
-    local amount = msg.amount
+    local issue = open_quotation.issue
     local data = {
         uid = uid,
-        date = timestamp_to_date(now_time),
-        issue = open_quotation.issue,
+        issue = issue,
         game_type = game_type,
-        kind = kind,
-        slot = slot,
-        amount = amount
+        kind = msg.kind,
+        slot = msg.slot,
+        amount = msg.amount,
+        date = timestamp_to_date(now_time)
         -- win_amount = 100
     }
-    db_help.call("lottery_db.lottery_append_betting_record", data)
-    return {code = error_code_config.SUCCEED.value, err = error_code_config.SUCCEED.desc}
+    local amount = db_help.call("lottery_db.lottery_jsssc_get_betting_record_amount", data)
+    if amount == 0 then
+        db_help.call("lottery_db.lottery_append_betting_record", data)
+    else
+        db_help.call("lottery_db.lottery_update_betting_record", data)
+    end
+
+    local data = {
+        kind_slot_to_amount = get_lottery_betting_record_list(data)
+    }
+    return {code = error_code_config.SUCCEED.value, err = error_code_config.SUCCEED.desc, data = data}
 end
 
 function root.clear()

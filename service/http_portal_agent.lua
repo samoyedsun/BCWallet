@@ -178,36 +178,31 @@ web_use("^/:module/:command$", function (req, res)
     if module ~= "user" or command ~= "login" then
         local cookies = req:get_cookies()
         local cli_sid = cookies.sid
-        if not cli_sid then
+        local cli_uid = tonumber(cookies.uid)
+        if not cli_sid or not cli_uid then
             local result = {code = error_code_config.ERROR_USER_NEED_TO_LOGIN.value, err = error_code_config.ERROR_USER_NEED_TO_LOGIN.desc}
             res:json(result)
             return true
         end
-        local cli_session, cli_uid = skynet.call("srv_auth", "lua", "get_session_by_sid", cli_sid)
-        if not cli_uid then
-            local result = {code = error_code_config.ERROR_USER_AUTH_FAILED.value, err = error_code_config.ERROR_USER_AUTH_FAILED.desc}
-            res:json(result)
-            return true
-        end
-        local srv_session, srv_uid = skynet.call("srv_auth", "lua", "get_session_by_uid", cli_uid)
-        if not cli_session and not srv_session then
+        local session = skynet.call("srv_auth", "lua", "get_session_by_uid", cli_uid)
+        if not session then
             local result = {code = error_code_config.ERROR_VERSION_OLDER.value, err = error_code_config.ERROR_VERSION_OLDER.desc}
             res:json(result)
             return true
         end
-        if not cli_session and srv_session then
-            local result = {code = error_code_config.ERROR_USER_LOGIIN_OTHER_DEVICE.value, err = error_code_config.ERROR_USER_LOGIIN_OTHER_DEVICE.desc}
+        local sid = session.sid
+        if sid ~= cli_sid then
+            local result = {code = error_code_config.ERROR_USER_AUTH_FAILED.value, err = error_code_config.ERROR_USER_AUTH_FAILED.desc}
             res:json(result)
             return true
         end
-        local cli_expired = cli_session.expired
         local now_time = skynet_time()
-        if cli_expired < now_time then
+        if session.expired < now_time then
             local result = {code = error_code_config.ERROR_USER_SESSION_EXPIRED.value, err = error_code_config.ERROR_USER_SESSION_EXPIRED.desc}
             res:json(result)
             return true
         end
-        skynet.send("srv_auth", "lua", "renew_expired", cli_sid, now_time)
+        skynet.send("srv_auth", "lua", "renew_expired", cli_uid, now_time)
         req.uid = cli_uid
     end
     local msg = req.query
@@ -227,8 +222,17 @@ web_use("^/:module/:command$", function (req, res)
     res:json(res_data)
 
     -- 登陆成功保存会话到cookie方便下次访问做安全验证
-    if module == "user" and command == "login" then
-        res:set_cookies({sid = extra, Path = "/"})
+    if module == "user" and command == "login" and extra then
+        res:set_cookies({
+            {key = "sid", val = extra.sid},
+            {key = "domain", val = "localhost"},
+            {key = "path", val = "/"}
+        })
+        res:set_cookies({
+            {key = "uid", val = extra.uid},
+            {key = "domain", val = "localhost"},
+            {key = "path", val = "/"}
+        })
     end
     
     return true
@@ -267,11 +271,12 @@ end
 function RES:set_cookies(cookies)
     local cookie_str = ""
     local i = 0
-    for k, v in pairs(cookies) do
-        cookie_str = string.format("%s%s%s=%s", cookie_str, i == 0 and "" or ";", k, v)
+    for k, v in ipairs(cookies) do
+        cookie_str = string.format("%s%s%s=%s", cookie_str, i == 0 and "" or ";", v.key, v.val)
         i = i + 1
     end
-    self.headers["Set-Cookie"] = cookie_str
+    self.headers["Set-Cookie"] = self.headers["Set-Cookie"] or {}
+    table.insert(self.headers["Set-Cookie"], cookie_str)
 end
 
 function RES:status(code)
