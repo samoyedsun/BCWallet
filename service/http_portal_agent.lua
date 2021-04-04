@@ -192,7 +192,7 @@ web_use("^/:module/:command$", function (req, res)
         end
         local sid = session.sid
         if sid ~= cli_sid then
-            local result = {code = error_code_config.ERROR_USER_AUTH_FAILED.value, err = error_code_config.ERROR_USER_AUTH_FAILED.desc}
+            local result = {code = error_code_config.ERROR_USER_LOGIIN_OTHER_DEVICE.value, err = error_code_config.ERROR_USER_LOGIIN_OTHER_DEVICE.desc}
             res:json(result)
             return true
         end

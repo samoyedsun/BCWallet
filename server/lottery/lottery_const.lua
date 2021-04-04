@@ -7,6 +7,10 @@ local lottery_const = {
     LOCK_STATE = {
         NO = "NO",
         YES = "YES"
+    },
+    GAME_STATE = {
+        OPENING = "OPENING",
+        SEALING = "SEALING"
     }
 }
 

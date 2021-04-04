@@ -7,7 +7,6 @@ function root.lottery_jsssc_find_history(db, issue)
     return db.lottery_jsssc_history:findOne(conds)
 end
 
-
 function root.lottery_jsssc_find_miss_history(db)
     local conds = {
         balls = {
@@ -61,7 +60,7 @@ function root.lottery_jsssc_get_open_quotation_by_lock(db, lock)
 end
 
 function root.lottery_jsssc_get_open_quotation_first(db)
-    local res = db.lottery_jsssc_open_quotation:find({}):sort({sealing_date = 1}):limit(1) or {}
+    local res = db.lottery_jsssc_open_quotation:find({}):sort({issue = 1}):limit(1) or {}
     while res:hasNext() do
         return res:next()
     end
@@ -111,11 +110,11 @@ function root.lottery_jsssc_get_betting_record_amount(db, data)
     return db.lottery_jsssc_betting_record:find(conds):count()
 end
 
-function root.lottery_append_betting_record(db, data)
+function root.lottery_jsssc_append_betting_record(db, data)
     db.lottery_jsssc_betting_record:safe_insert(data)
 end
 
-function root.lottery_update_betting_record(db, data)
+function root.lottery_jsssc_update_betting_record_amount(db, data)
     local conds = {
         uid = data.uid,
         issue = data.issue,
@@ -132,7 +131,41 @@ function root.lottery_update_betting_record(db, data)
     db.lottery_jsssc_betting_record:update(conds, data)
 end
 
-function root.lottery_find_betting_record(db, data)
+function root.lottery_jsssc_update_betting_record_win_amount(db, data)
+    local conds = {
+        uid = data.uid,
+        issue = data.issue,
+        game_type = data.game_type,
+        kind = data.kind,
+        slot = data.slot
+    }
+    local data = {
+        ["$set"] = {
+            win_amount = data.win_amount
+        }
+    }
+    db.lottery_jsssc_betting_record:update(conds, data, {upsert = true})
+end
+
+function root.lottery_jsssc_find_betting_record_unsettled(db, game_type)
+    local conds = {
+        game_type = game_type,
+        win_amount = {
+            ["$exists"] = false
+        }
+    }
+    local res = db.lottery_jsssc_betting_record:find(conds)
+    local results = {}
+	while res:hasNext() do
+		local st = res:next()
+		st._id = nil
+        results[st.issue] = results[st.issue] or {}
+        table.insert(results[st.issue], st)
+	end
+	return results
+end
+
+function root.lottery_jsssc_find_betting_record(db, data)
     local conds = {
         uid = data.uid,
         issue = data.issue,

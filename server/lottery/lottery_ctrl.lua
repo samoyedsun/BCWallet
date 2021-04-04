@@ -118,7 +118,7 @@ local function match_state_dragon_tiger_tie_play(balls)
 end
 
 local function get_lottery_betting_record_list(data)
-    local results = db_help.call("lottery_db.lottery_find_betting_record", data)
+    local results = db_help.call("lottery_db.lottery_jsssc_find_betting_record", data)
     local kind_slot_to_amount = {}
     for k, v in ipairs(results) do
         local key = v.kind .. "-" .. v.slot
@@ -126,6 +126,19 @@ local function get_lottery_betting_record_list(data)
         kind_slot_to_amount[key] = amount + v.amount
     end
     return kind_slot_to_amount
+end
+
+local function get_lottery_state(sealing_date)
+    local sealing_time = date_to_timestamp(sealing_date)
+    local now_time = skynet_time()
+    local opening_time = sealing_time - lottery_const.GAME_JSSSC_OPENING_TIME_SPAN
+    if now_time >= opening_time and now_time < sealing_time then
+        return lottery_const.GAME_STATE.OPENING, sealing_time - now_time, "下注中"
+    end
+    local sealing_time = opening_time - lottery_const.GAME_JSSSC_SEALING_TIME_SPAN
+    if now_time < opening_time and now_time >= sealing_time then
+        return lottery_const.GAME_STATE.SEALING, opening_time - now_time, "封盘中"
+    end
 end
 
 local root = {}
@@ -198,16 +211,20 @@ function root.betting(msg, uid)
     
     -- 这里需要再加个条件，就是通过游戏类型查询
     local lock = lottery_const.LOCK_STATE.YES
-    local open_quotation = db_help.call("lottery_db.lottery_jsssc_get_open_quotation_by_lock", lock)
-    local sealing_time = date_to_timestamp(open_quotation.sealing_date)
-    local beginning_time = sealing_time - lottery_const.GAME_JSSSC_OPENING_TIME_SPAN
-    local now_time = skynet_time()
-    if not open_quotation or beginning_time > now_time then
+    local result = db_help.call("lottery_db.lottery_jsssc_get_open_quotation_by_lock", lock)
+    if not result then
+        return {code = error_code_config.ERROR_WAITING_STATE_CHANGING.value, err = error_code_config.ERROR_WAITING_STATE_CHANGING.desc}
+    end
+    local game_state = get_lottery_state(result.sealing_date)
+    if not game_state then
+        return {code = error_code_config.ERROR_WAITING_STATE_CHANGING.value, err = error_code_config.ERROR_WAITING_STATE_CHANGING.desc}
+    end
+    if game_state == lottery_const.GAME_STATE.SEALING then
         return {code = error_code_config.ERROR_SEALING_CAN_NOT_BETTING.value, err = error_code_config.ERROR_SEALING_CAN_NOT_BETTING.desc}
     end
 
     local game_type = msg.game_type
-    local issue = open_quotation.issue
+    local issue = result.issue
     local data = {
         uid = uid,
         issue = issue,
@@ -218,15 +235,86 @@ function root.betting(msg, uid)
         date = timestamp_to_date(now_time)
         -- win_amount = 100
     }
+
+    -- 重入问题
     local amount = db_help.call("lottery_db.lottery_jsssc_get_betting_record_amount", data)
     if amount == 0 then
-        db_help.call("lottery_db.lottery_append_betting_record", data)
+        db_help.call("lottery_db.lottery_jsssc_append_betting_record", data)
     else
-        db_help.call("lottery_db.lottery_update_betting_record", data)
+        db_help.call("lottery_db.lottery_jsssc_update_betting_record_amount", data)
     end
 
     local data = {
         kind_slot_to_amount = get_lottery_betting_record_list(data)
+    }
+    return {code = error_code_config.SUCCEED.value, err = error_code_config.SUCCEED.desc, data = data}
+end
+
+function root.get_lottery_info(msg, uid)
+	if type(msg) ~= "table" or
+        type(msg.game_type) ~= "string" then
+		return {code = error_code_config.ERROR_CLIENT_PARAMETER_TYPE.value, err = error_code_config.ERROR_CLIENT_PARAMETER_TYPE.desc}
+	end
+    local game_type = msg.game_type
+
+    -- 这里需要再加个条件，就是通过游戏类型查询
+    local lock = lottery_const.LOCK_STATE.YES
+    local result = db_help.call("lottery_db.lottery_jsssc_get_open_quotation_by_lock", lock)
+    if not result then
+        return {code = error_code_config.ERROR_WAITING_STATE_CHANGING.value, err = error_code_config.ERROR_WAITING_STATE_CHANGING.desc}
+    end
+    local game_state, count_down_time, count_down_time_title = get_lottery_state(result.sealing_date)
+    if not game_state then
+        return {code = error_code_config.ERROR_WAITING_STATE_CHANGING.value, err = error_code_config.ERROR_WAITING_STATE_CHANGING.desc}
+    end
+    local curr_issue = result.issue
+    local prev_issue = nil
+    local prev_balls = nil
+    if game_state == lottery_const.GAME_STATE.SEALING then
+        curr_issue = curr_issue - 1
+        prev_issue = curr_issue - 1
+    end
+    if game_state == lottery_const.GAME_STATE.OPENING then
+        prev_issue = curr_issue - 1
+    end
+    local result = db_help.call("lottery_db.lottery_jsssc_find_history", prev_issue)
+    prev_balls = result.balls
+    if not prev_balls then
+        print("==========据我所知，只有当game_state是OPENING的时候才会执行这里============", game_state)
+        return {code = error_code_config.ERROR_WAITING_STATE_CHANGING.value, err = error_code_config.ERROR_WAITING_STATE_CHANGING.desc}
+    end
+    
+    local data = {
+        prev_issue = prev_issue,
+        prev_balls = prev_balls,
+        curr_issue = curr_issue,
+        game_state = game_state,
+        count_down_time_title = count_down_time_title,
+        count_down_time = count_down_time,
+        kind_slot_to_amount = get_lottery_betting_record_list({
+            uid = uid,
+            issue = curr_issue,
+            game_type = game_type})
+    }
+    return {code = error_code_config.SUCCEED.value, err = error_code_config.SUCCEED.desc, data = data}
+end
+
+function root.get_lottery_state_list()
+    local lock = lottery_const.LOCK_STATE.YES
+    local result = db_help.call("lottery_db.lottery_jsssc_get_open_quotation_by_lock", lock)
+    if not result then
+        return {code = error_code_config.ERROR_WAITING_STATE_CHANGING.value, err = error_code_config.ERROR_WAITING_STATE_CHANGING.desc}
+    end
+    local game_state, count_down_time, count_down_time_title = get_lottery_state(result.sealing_date)
+    if not game_state then
+        return {code = error_code_config.ERROR_WAITING_STATE_CHANGING.value, err = error_code_config.ERROR_WAITING_STATE_CHANGING.desc}
+    end
+
+    local data = {
+        lottery_jsssc = {
+            count_down_time_title = count_down_time_title,
+            count_down_time = count_down_time
+        }
     }
     return {code = error_code_config.SUCCEED.value, err = error_code_config.SUCCEED.desc, data = data}
 end

@@ -86,6 +86,11 @@ local error_code_config = {
 		value = 10200,
 		desc = [[封盘期间不可下注!]],
 	},
+	["ERROR_WAITING_STATE_CHANGING"] = {
+		key = [[ERROR_WAITING_STATE_CHANGING]],
+		value = 10201,
+		desc = [[状态改变中,请稍后!]],
+	},
 }
 
 return error_code_config

@@ -42,7 +42,8 @@ function root.register(msg, ip)
 		password = password,
 		login_ip = ip,
 		avatar = 1,
-		gender = 1
+		gender = 1,
+		money = 0
 	}
 	local uid = db_help.call("user_db.create_user", data)
 

@@ -10,4 +10,16 @@ function root.get_user(db, username)
     })
 end
 
+function root.update_user_money(db, data)
+    local conds = {
+        _id = data.uid
+    }
+    local data = {
+        ["$inc"] = {
+            money = data.win_amount
+        }
+    }
+    db.user:update(conds, data, {upsert = true})
+end
+
 return root

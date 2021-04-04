@@ -81,14 +81,47 @@ local function jsssc_exec_open_quotation()
     end
 end
 
+local function jsssc_exec_settle_betting_record(game_type)
+    local results = db_help.call("lottery_db.lottery_jsssc_find_betting_record_unsettled", game_type)
+    local issue_list = table.indices(results)
+    for _, issue in ipairs(issue_list) do
+        local betting_record_list = results[issue]
+        local result = db_help.call("lottery_db.lottery_jsssc_find_history", issue)
+        if result and result.balls then
+            local opening_opcode = result.opening_opcode
+            for _, betting_record in ipairs(betting_record_list) do
+                local win_amount = 0
+                local slot = opening_opcode[betting_record.kind]
+                if slot and slot == betting_record.slot then
+                    local odds = lottery_const.GAME_JSSSC_ODDS[betting_record.kind][slot]
+                    win_amount = win_amount + betting_record.amount * odds - betting_record.amount
+                else
+                    win_amount = win_amount - betting_record.win_amount
+                end
+                db_help.call("lottery_db.lottery_jsssc_update_betting_record_win_amount", {
+                    uid = betting_record.uid,
+                    issue = betting_record.issue,
+                    game_type = betting_record.game_type,
+                    kind = betting_record.kind,
+                    slot = betting_record.slot,
+                    win_amount = win_amount
+                })
+                db_help.call("user_db.update_user_money", {
+                    uid = betting_record.uid,
+                    win_amount = win_amount
+                })
+            end
+        end
+    end
+end
+
 local function on_tick()
 	create_timeout(100, function()
         on_tick()
     end)
 
     jsssc_exec_open_quotation()
-    
-    -- 结算 --
+    jsssc_exec_settle_betting_record("lottery_jsssc")
 end
 
 local CMD = {}
