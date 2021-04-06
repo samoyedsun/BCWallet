@@ -96,7 +96,7 @@ local function jsssc_exec_settle_betting_record(game_type)
                     local odds = lottery_const.GAME_JSSSC_ODDS[betting_record.kind][slot]
                     win_amount = win_amount + betting_record.amount * odds - betting_record.amount
                 else
-                    win_amount = win_amount - betting_record.win_amount
+                    win_amount = win_amount - betting_record.amount
                 end
                 db_help.call("lottery_db.lottery_jsssc_update_betting_record_win_amount", {
                     uid = betting_record.uid,
