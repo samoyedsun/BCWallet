@@ -160,17 +160,12 @@ web_before(".*", function(req, res)
     return true
 end)
 
-web_use("^/:module/:command$", function (req, res)
+web_post("^/:module/:command$", function (req, res)
     local module = req.params.module
     local command = req.params.command
     local REQUEST = modules[module]
     if not REQUEST or not REQUEST[command] then
         local result = {code = error_code_config.ERROR_NAME_UNFOUND.value, err = error_code_config.ERROR_NAME_UNFOUND.desc}
-        res:json(result)
-        return true
-    end
-    if req.method ~= "POST" then
-        local result = {code = error_code_config.ERROR_INVALID_OPERATION.value, err = error_code_config.ERROR_INVALID_OPERATION.desc}
         res:json(result)
         return true
     end
@@ -220,17 +215,15 @@ web_use("^/:module/:command$", function (req, res)
         return true
     end
     res:json(res_data)
-
+    
     -- 登陆成功保存会话到cookie方便下次访问做安全验证
     if module == "user" and command == "login" and extra then
         res:set_cookies({
             {key = "sid", val = extra.sid},
-            {key = "domain", val = "localhost"},
             {key = "path", val = "/"}
         })
         res:set_cookies({
             {key = "uid", val = extra.uid},
-            {key = "domain", val = "localhost"},
             {key = "path", val = "/"}
         })
     end
