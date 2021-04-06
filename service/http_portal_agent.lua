@@ -175,7 +175,7 @@ web_use("^/:module/:command$", function (req, res)
         return true
     end
     -- 登陆成功的访问做安全验证; 以后再看有没有必要分到一个单独的模块
-    if module ~= "user" or command ~= "login" then
+    if module ~= "user" then
         local cookies = req:get_cookies()
         local cli_sid = cookies.sid
         local cli_uid = tonumber(cookies.uid)
