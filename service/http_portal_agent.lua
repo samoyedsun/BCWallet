@@ -165,40 +165,29 @@ web_post("^/:module/:command$", function (req, res)
     local command = req.params.command
     local REQUEST = modules[module]
     if not REQUEST or not REQUEST[command] then
-        local result = {code = error_code_config.ERROR_NAME_UNFOUND.value, err = error_code_config.ERROR_NAME_UNFOUND.desc}
-        res:json(result)
+        res:json({code = error_code_config.ERROR_NAME_UNFOUND.value, err = error_code_config.ERROR_NAME_UNFOUND.desc})
+        res:status(404)
         return true
     end
     -- 登陆成功的访问做安全验证; 以后再看有没有必要分到一个单独的模块
     if module ~= "user" then
         local cookies = req:get_cookies()
         local cli_sid = cookies.sid
-        local cli_uid = tonumber(cookies.uid)
-        if not cli_sid or not cli_uid then
-            local result = {code = error_code_config.ERROR_USER_NEED_TO_LOGIN.value, err = error_code_config.ERROR_USER_NEED_TO_LOGIN.desc}
-            res:json(result)
+        if not cli_sid then
+            -- 玩家在此设备第一次登陆，或cookie过期
+            res:json({code = error_code_config.ERROR_USER_SESSION_EXPIRED.value, err = error_code_config.ERROR_USER_SESSION_EXPIRED.desc})
+            res:status(401)
             return true
         end
-        local session = skynet.call("srv_auth", "lua", "get_session_by_uid", cli_uid)
-        if not session then
-            local result = {code = error_code_config.ERROR_VERSION_OLDER.value, err = error_code_config.ERROR_VERSION_OLDER.desc}
-            res:json(result)
+        local session = skynet.call("srv_auth", "lua", "get_session", cli_sid)
+        if not session or session.sid ~= cli_sid then
+            -- 服务器更新时重启丢掉session或,用户在其他设备登陆
+            res:json({code = error_code_config.ERROR_USER_SESSION_EXPIRED.value, err = error_code_config.ERROR_USER_SESSION_EXPIRED.desc})
+            res:status(401)
             return true
         end
-        local sid = session.sid
-        if sid ~= cli_sid then
-            local result = {code = error_code_config.ERROR_USER_LOGIIN_OTHER_DEVICE.value, err = error_code_config.ERROR_USER_LOGIIN_OTHER_DEVICE.desc}
-            res:json(result)
-            return true
-        end
-        local now_time = skynet_time()
-        if session.expired < now_time then
-            local result = {code = error_code_config.ERROR_USER_SESSION_EXPIRED.value, err = error_code_config.ERROR_USER_SESSION_EXPIRED.desc}
-            res:json(result)
-            return true
-        end
-        skynet.send("srv_auth", "lua", "renew_expired", cli_uid, now_time)
-        req.uid = cli_uid
+        skynet.send("srv_auth", "lua", "renew_expired", cli_sid)
+        req.uid = session.uid
     end
     local msg = req.query
     msg = cjson_decode(req.body)
@@ -210,8 +199,8 @@ web_post("^/:module/:command$", function (req, res)
     local ok, res_data, extra = xpcall(REQUEST[command], trace, req, msg)
     if not ok then
         logger.error("%s %s %s", req.path, tostring(msg), trace_err)
-        local result = {code = error_code_config.ERROR_INTERNAL_SERVER.value, err = error_code_config.ERROR_INTERNAL_SERVER.desc}
-        res:json(result)
+        res:json({code = error_code_config.ERROR_INTERNAL_SERVER.value, err = error_code_config.ERROR_INTERNAL_SERVER.desc})
+        res:status(500)
         return true
     end
     res:json(res_data)
@@ -220,11 +209,13 @@ web_post("^/:module/:command$", function (req, res)
     if module == "user" and command == "login" and extra then
         res:set_cookies({
             {key = "sid", val = extra.sid},
-            {key = "path", val = "/"}
+            {key = "path", val = "/"},
+            {key = "max-age", val = extra.max_age}
         })
         res:set_cookies({
             {key = "uid", val = extra.uid},
-            {key = "path", val = "/"}
+            {key = "path", val = "/"},
+            {key = "max-age", val = extra.max_age}
         })
     end
     

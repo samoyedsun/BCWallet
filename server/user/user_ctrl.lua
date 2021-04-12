@@ -76,8 +76,8 @@ function root.login(msg)
 	--]]
 	local uid = result.uid
 	local now_time = skynet_time()
-	local sid, expired = skynet.call("srv_auth", "lua", "set_session", uid, now_time)
-	local extra = {sid = sid, uid = uid, expires = expired}
+	local sid, life_cycle = skynet.call("srv_auth", "lua", "set_session", uid, now_time)
+	local extra = {sid = sid, uid = uid, max_age = life_cycle}
     return {code = error_code_config.SUCCEED.value, err = error_code_config.SUCCEED.desc}, extra
 end
 
