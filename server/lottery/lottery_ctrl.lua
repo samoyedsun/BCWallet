@@ -235,15 +235,9 @@ function root.betting(msg, uid)
         date = timestamp_to_date(now_time)
         -- win_amount = 100
     }
-
-    -- 重入问题
-    local amount = db_help.call("lottery_db.lottery_jsssc_get_betting_record_amount", data)
-    if amount == 0 then
-        db_help.call("lottery_db.lottery_jsssc_append_betting_record", data)
-    else
-        db_help.call("lottery_db.lottery_jsssc_update_betting_record_amount", data)
-    end
-
+    
+    db_help.call("lottery_db.lottery_jsssc_update_betting_record_amount", data)
+    
     local data = {
         kind_slot_to_amount = get_lottery_betting_record_list(data)
     }
@@ -283,6 +277,7 @@ function root.get_lottery_info(msg, uid)
         print("==========据我所知，只有当game_state是OPENING的时候才会执行这里============", game_state)
         return {code = error_code_config.ERROR_WAITING_STATE_CHANGING.value, err = error_code_config.ERROR_WAITING_STATE_CHANGING.desc}
     end
+    local result = db_help.call("user_db.get_user_by_uid", uid)
     
     local data = {
         prev_issue = prev_issue,
@@ -294,7 +289,8 @@ function root.get_lottery_info(msg, uid)
         kind_slot_to_amount = get_lottery_betting_record_list({
             uid = uid,
             issue = curr_issue,
-            game_type = game_type})
+            game_type = game_type}),
+        money = result.money
     }
     return {code = error_code_config.SUCCEED.value, err = error_code_config.SUCCEED.desc, data = data}
 end

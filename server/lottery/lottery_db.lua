@@ -99,21 +99,6 @@ function root.lottery_jsssc_delete_open_quotation_expire(db, curr_date)
     db.lottery_jsssc_open_quotation:delete(conds)
 end
 
-function root.lottery_jsssc_get_betting_record_amount(db, data)
-    local conds = {
-        uid = data.uid,
-        issue = data.issue,
-        game_type = data.game_type,
-        kind = data.kind,
-        slot = data.slot
-    }
-    return db.lottery_jsssc_betting_record:find(conds):count()
-end
-
-function root.lottery_jsssc_append_betting_record(db, data)
-    db.lottery_jsssc_betting_record:safe_insert(data)
-end
-
 function root.lottery_jsssc_update_betting_record_amount(db, data)
     local conds = {
         uid = data.uid,
@@ -122,13 +107,25 @@ function root.lottery_jsssc_update_betting_record_amount(db, data)
         kind = data.kind,
         slot = data.slot
     }
-    local data = {
-        ["$set"] = {
-            amount = data.amount,
-            date = data.date
+    local amount = db.lottery_jsssc_betting_record:find(conds):count()
+    if amount == 0 then
+        db.lottery_jsssc_betting_record:safe_insert(data)
+    else
+        local conds = {
+            uid = data.uid,
+            issue = data.issue,
+            game_type = data.game_type,
+            kind = data.kind,
+            slot = data.slot
         }
-    }
-    db.lottery_jsssc_betting_record:update(conds, data)
+        local data = {
+            ["$set"] = {
+                amount = data.amount,
+                date = data.date
+            }
+        }
+        db.lottery_jsssc_betting_record:update(conds, data)
+    end
 end
 
 function root.lottery_jsssc_update_betting_record_win_amount(db, data)

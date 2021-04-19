@@ -10,6 +10,12 @@ function root.get_user(db, username)
     })
 end
 
+function root.get_user_by_uid(db, uid)
+    return db.user:findOne({
+        _id = uid
+    })
+end
+
 function root.update_user_money(db, data)
     local conds = {
         _id = data.uid
