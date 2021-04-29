@@ -121,7 +121,6 @@ local function on_tick()
     end)
 
     jsssc_exec_open_quotation()
-    jsssc_exec_settle_betting_record("lottery_jsssc")
 end
 
 local CMD = {}
@@ -139,7 +138,8 @@ function CMD.lottery_jsssc_find_miss_history()
 end
 
 function CMD.lottery_jsssc_update_history(issue, balls, opening_opcode)
-    return db_help.call("lottery_db.lottery_jsssc_update_history", issue, balls, opening_opcode)
+    db_help.call("lottery_db.lottery_jsssc_update_history", issue, balls, opening_opcode)
+    jsssc_exec_settle_betting_record("lottery_jsssc")
 end
 
 skynet.dispatch("lua", function(session, _, command, ...)
